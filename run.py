@@ -4,6 +4,7 @@ import logging
 from aiogram import Dispatcher
 
 from settings.config import Configuration
+from database import requests as db
 from handlers import cmd_handlers, other_handlers
 
 async def start():
@@ -34,6 +35,8 @@ async def start():
     dp.include_routers(
                 cmd_handlers.router,
                 other_handlers.router)
+
+    await db.db_start()
 
     try:
         # Start polling
