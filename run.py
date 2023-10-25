@@ -4,7 +4,7 @@ import logging
 from aiogram import Dispatcher
 
 from settings.config import Configuration
-from database import requests as db
+from database.db import DatabaseManager
 from handlers import cmd_handlers, other_handlers
 
 async def start():
@@ -16,6 +16,7 @@ async def start():
     # Initialize a bot
     conf = Configuration()
     bot = conf.bot
+    db = DatabaseManager()
     
     # Configure logging
     logging.basicConfig(
@@ -30,16 +31,17 @@ async def start():
 
     # Initialize a dispatcher
     dp = Dispatcher()
+    
+    dp.startup.register(db.db_start)
 
     # Include the router
     dp.include_routers(
                 cmd_handlers.router,
                 other_handlers.router)
 
-    await db.db_start()
-
     try:
         # Start polling
+        logging.info('Bot started')
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot)
     finally:
@@ -50,4 +52,4 @@ if __name__ == '__main__':
     try:
         asyncio.run(start())
     except KeyboardInterrupt:
-        logging.info('Bot stopped\n')
+        logging.info('Bot stopped\n\n')
