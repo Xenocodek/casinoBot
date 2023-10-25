@@ -1,5 +1,6 @@
 from datetime import datetime
 import pytz
+import random
 import sqlite3 as sq
 
 
@@ -35,10 +36,21 @@ class DatabaseManager:
             """,
             """
             CREATE TABLE IF NOT EXISTS balances (
-                    id INTEGER PRIMARY KEY UNIQUE NOT NULL,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
+                    balance_id INTEGER NOT NULL UNIQUE,
                     user_id REFERENCES users(user_id),
-                    balance INTEGER,
+                    amount INTEGER,
+                    currency VARCHAR(3),
                     last_updated TIMESTAMP
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS transactions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
+                    balance_id REFERENCES balances(balance_id),
+                    transaction_type VARCHAR(64),
+                    amount INTEGER,
+                    registration_date TIMESTAMP
             );
             """
         ]
@@ -50,26 +62,48 @@ class DatabaseManager:
         conn.close()
 
     async def new_user(self, user_id, username, user_first_name, user_last_name):
-        conn, cur = self.connection()
-        if conn is None:
-            return
-        
-        user = cur.execute(
-            "SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-
-        if not user:
-            desired_timezone = pytz.timezone('Europe/Moscow')
-            created = datetime.now(desired_timezone).strftime('%Y-%m-%d %H:%M:%S')
-            time_updated = created
+        try:
+            conn, cur = self.connection()
+            if conn is None:
+                return
             
-            cur.execute(
-                "INSERT INTO users (user_id, username, user_first_name, user_last_name, registration_date) VALUES (?, ?, ?, ?, ?)",
-                (user_id, username, user_first_name, user_last_name, created),
-            )
-            cur.execute(
-                "INSERT INTO balances (user_id, balance, last_updated) VALUES (?, ?, ?)",
-                (user_id, 1000, time_updated),
-            )
+            user = cur.execute(
+                "SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            
+            if not user:
+                desired_timezone = pytz.timezone('Europe/Moscow')
+                created = datetime.now(desired_timezone).strftime('%Y-%m-%d %H:%M:%S')
+                time_updated = created
+                amount = 1000
+                transaction_type = "Registration"
+                currency = "ALM"
+                
+                cur.execute(
+                    "INSERT INTO users (user_id, username, user_first_name, user_last_name, registration_date) VALUES (?, ?, ?, ?, ?)",
+                    (user_id, username, user_first_name, user_last_name, created),
+                )
 
-            conn.commit()
+                while True:
+                    balance_id = random.randint(1000, 9999)
+
+                    existing_balance = cur.execute("SELECT id FROM balances WHERE id = ?", (balance_id,)).fetchone()
+
+                    if not existing_balance:
+                        break
+                
+                cur.execute(
+                    "INSERT INTO balances (balance_id, user_id, amount, currency, last_updated) VALUES (?, ?, ?, ?, ?)",
+                    (balance_id, user_id, amount, currency, time_updated),
+                )
+
+                cur.execute(
+                    "INSERT INTO transactions (balance_id, transaction_type, amount, registration_date) VALUES (?, ?, ?, ?)",
+                    (balance_id, transaction_type, amount, time_updated),
+                )
+
+                conn.commit()
+
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
             conn.close()
