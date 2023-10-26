@@ -16,7 +16,7 @@ class CurrencyConverter:
         response = requests.get(url, headers=headers)
         return response
 
-    def get_exchange(self, base_currency):
+    async def get_exchange(self, base_currency):
         response = self.get_exchange_response(base_currency)
         if response.status_code == 200:
             result_json = response.json()

@@ -1,3 +1,4 @@
+import asyncio
 from aiogram import Router, Bot
 from aiogram.types import Message
 from aiogram.filters import CommandStart, Command
@@ -19,12 +20,18 @@ messages_data = file_manager.get_json("messages.json")
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
-    user = message.from_user
-    answer_message = f"{messages_data['greetings']}{hbold(user.first_name)}"
-    await db.new_user(user.id, user.username.lower(), user.first_name, user.last_name)
 
-    # base_currency = "USD"
-    # usd = converter.get_exchange(base_currency)
-    # answer_message = f"{usd}"
+    base_currency_usd, base_currency_eur = messages_data['usd'], messages_data['eur']
+
+    usd, eur = await asyncio.gather(
+        converter.get_exchange(base_currency_usd),
+        converter.get_exchange(base_currency_eur)
+    )
+
+    user = message.from_user
+    user_id, username, first_name, last_name = user.id, user.username.lower(), user.first_name, user.last_name
+
+    answer_message = f"{messages_data['greetings']}{hbold(first_name)}\n\n{base_currency_usd}: {hbold(usd)}    {base_currency_eur}: {hbold(eur)}"
 
     await message.answer(answer_message)
+    await db.new_user(user_id, username, first_name, last_name)
