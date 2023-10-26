@@ -24,3 +24,10 @@ class Configuration:
     botconfig = BotConfig()
 
     bot = Bot(token=botconfig.token, parse_mode='HTML')
+
+
+@dataclass
+class ExchangeManager:
+    """Exchange manager."""
+
+    token: str = os.getenv("EXCHANGE_TOKEN")
