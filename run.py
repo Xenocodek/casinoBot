@@ -5,7 +5,7 @@ from aiogram import Dispatcher
 
 from settings.config import Configuration
 from database.db import DatabaseManager
-from handlers import cmd_handlers, other_handlers
+from handlers import cmd_handlers, callback_handlers, other_handlers
 
 async def start():
     """
@@ -37,6 +37,7 @@ async def start():
     # Include the router
     dp.include_routers(
                 cmd_handlers.router,
+                callback_handlers.router,
                 other_handlers.router)
 
     try:

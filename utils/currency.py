@@ -1,4 +1,6 @@
 import requests
+import asyncio
+
 from settings.config import ExchangeManager
 
 exchange_manager = ExchangeManager()

@@ -40,6 +40,7 @@ class DatabaseManager:
                     balance_id INTEGER NOT NULL UNIQUE,
                     user_id REFERENCES users(user_id),
                     amount INTEGER,
+                    wins INTEGER,
                     currency VARCHAR(3),
                     last_updated TIMESTAMP
             );
@@ -75,6 +76,7 @@ class DatabaseManager:
                 created = datetime.now(desired_timezone).strftime('%Y-%m-%d %H:%M:%S')
                 time_updated = created
                 amount = 1000
+                wins = 0
                 transaction_type = "Registration"
                 currency = "ALM"
                 
@@ -92,8 +94,8 @@ class DatabaseManager:
                         break
                 
                 cur.execute(
-                    "INSERT INTO balances (balance_id, user_id, amount, currency, last_updated) VALUES (?, ?, ?, ?, ?)",
-                    (balance_id, user_id, amount, currency, time_updated),
+                    "INSERT INTO balances (balance_id, user_id, amount, wins, currency, last_updated) VALUES (?, ?, ?, ?, ?, ?)",
+                    (balance_id, user_id, amount, wins, currency, time_updated),
                 )
 
                 cur.execute(
