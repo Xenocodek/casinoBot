@@ -6,13 +6,10 @@ from aiogram.utils.markdown import hbold
 
 from lexicon.subloader import JSONFileManager
 from database.db import DatabaseManager
-from utils.currency import CurrencyConverter
 
 from keyboards.inlinekb import start_keyboard
 
 router = Router()
-
-converter = CurrencyConverter()
 
 db = DatabaseManager()
 

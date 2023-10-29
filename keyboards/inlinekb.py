@@ -27,6 +27,6 @@ def create_inline_kb(width, *args, **kwargs):
     return kb_builder.as_markup()
 
 
-start_keyboard = create_inline_kb(1, 'start_profile')
-menu_keyboard = create_inline_kb(1, 'profile')
+start_keyboard = create_inline_kb(1, 'start_profile', 'game')
+menu_keyboard = create_inline_kb(1, 'profile', 'game')
 back_main_menu_keyboard = create_inline_kb(1, 'back_main_menu')

@@ -109,3 +109,26 @@ class DatabaseManager:
             print(f"Error: {e}")
         finally:
             conn.close()
+
+    async def get_user_data(self, user_id):
+        try:
+            conn, cur = self.connection()
+            if conn is None:
+                return
+            
+            user_data = cur.execute(
+                """
+                SELECT users.user_id, users.username, balances.amount, balances.wins
+                FROM users
+                JOIN balances ON users.user_id = balances.user_id
+                WHERE users.user_id = ?;
+                """, (user_id,)).fetchone()
+            
+            conn.close()
+
+            return user_data
+
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
+            conn.close()
