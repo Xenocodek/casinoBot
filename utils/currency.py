@@ -8,7 +8,7 @@ exchange_token = exchange_manager.token
 
 class CurrencyConverter:
     def __init__(self):
-        self.api_url = "https://api.apilayer.com/exchangerates_data/latest"
+        self.api_url = "https://api.apilayer.com/fixer/latest"
         self.symbols = "RUB"
         self.api_key = exchange_token
 
@@ -30,3 +30,12 @@ class CurrencyConverter:
                 print("RUB rate not found in response.")
         else:
             print(f"Failed to fetch data. Status code: {response.status_code}")
+
+    async def get_multi_exchange(self):
+        base_currency_usd, base_currency_eur = "usd", "eur"
+        usd, eur = await asyncio.gather(
+            self.get_exchange(base_currency_usd),
+            self.get_exchange(base_currency_eur)
+        )
+
+        return usd, eur
