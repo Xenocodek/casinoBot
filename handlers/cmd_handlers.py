@@ -26,5 +26,5 @@ async def cmd_start(message: Message):
     answer_message = f"{messages_data['greetings']}{hbold(first_name)}\n\n"
     answer_message = answer_message + f"{messages_data['select_command']}"
 
-    await db.new_user(user_id, username, first_name, last_name)
     await message.answer(answer_message, reply_markup=start_keyboard)
+    await db.new_user(user_id, username, first_name, last_name)

@@ -50,6 +50,7 @@ class DatabaseManager:
                     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
                     balance_id REFERENCES balances(balance_id),
                     transaction_type VARCHAR(64),
+                    combination VARCHAR(64),
                     amount INTEGER,
                     registration_date TIMESTAMP
             );
@@ -119,6 +120,29 @@ class DatabaseManager:
             user_data = cur.execute(
                 """
                 SELECT users.user_id, users.username, balances.amount, balances.wins
+                FROM users
+                JOIN balances ON users.user_id = balances.user_id
+                WHERE users.user_id = ?;
+                """, (user_id,)).fetchone()
+            
+            conn.close()
+
+            return user_data
+
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
+            conn.close()
+
+    async def get_user_balance(self, user_id):
+        try:
+            conn, cur = self.connection()
+            if conn is None:
+                return
+            
+            user_data = cur.execute(
+                """
+                SELECT balances.amount
                 FROM users
                 JOIN balances ON users.user_id = balances.user_id
                 WHERE users.user_id = ?;

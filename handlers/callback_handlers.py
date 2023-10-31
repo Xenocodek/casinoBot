@@ -7,6 +7,7 @@ from aiogram.enums.dice_emoji import DiceEmoji
 from lexicon.subloader import JSONFileManager
 from database.db import DatabaseManager
 from utils.currency import CurrencyConverter
+from utils.user_data import prepare_user_profile
 from keyboards.inlinekb import menu_keyboard, back_main_menu_keyboard, get_bet_keyboard
 
 router = Router()
@@ -25,54 +26,28 @@ messages_data = file_manager.get_json("messages.json")
 @router.callback_query(F.data == 'start_profile')
 async def start_user_profile(callback: CallbackQuery):
     await callback.answer("Запрос принят!")
+
+    answer_message = f"{messages_data['greet_message']}"
+    await callback.message.edit_text(answer_message, reply_markup=None)
+
     user_id = callback.from_user.id
+    first_name = callback.from_user.first_name
     user_data = await db.get_user_data(user_id) if user_id else None
 
-    if user_data:
-        user_id, username, amount, wins = user_data
-    
-        answer_message = f"{messages_data['greet_message']}"
-        await callback.message.edit_text(answer_message, reply_markup=None)
-    
-        base_currency_usd, base_currency_eur = messages_data['usd'], messages_data['eur']
-        usd, eur = await converter.get_multi_exchange()
+    answer_message = await prepare_user_profile(user_data, first_name)
 
-        first_name = callback.from_user.first_name
-        answer_message = f"{messages_data['greetings']}{hbold(first_name)}\n\n"
-        answer_message = answer_message + f"{hbold(messages_data['currency'])}\n"
-        answer_message = answer_message + f"{base_currency_usd}🇺🇸 : {hbold(usd)}₽    {base_currency_eur}🇪🇺 : {hbold(eur)}₽\n\n"
-        answer_message = answer_message + f"{hbold(messages_data['user_profile'])}\n"
-        answer_message = answer_message + f"{messages_data['user_id']}{hbold(user_id)}\n"
-        answer_message = answer_message + f"{messages_data['user_username']}@{hbold(username)}\n"
-        answer_message = answer_message + f"{messages_data['wins']}{hbold(wins)}\n\n"
-        answer_message = answer_message + f"{hbold(messages_data['user_balance'])}\n"
-        answer_message = answer_message + f"{messages_data['user_chips']}{hbold(amount)}\n"
-        
-        await callback.message.answer(answer_message, reply_markup=back_main_menu_keyboard)
+    await callback.message.answer(answer_message, reply_markup=back_main_menu_keyboard)
 
 
 @router.callback_query(F.data == 'profile')
 async def user_profile(callback: CallbackQuery):
     await callback.answer("Запрос принят!")
+
     user_id = callback.from_user.id
+    first_name = callback.from_user.first_name
     user_data = await db.get_user_data(user_id) if user_id else None
 
-    if user_data:
-        user_id, username, amount, wins = user_data
-    
-        base_currency_usd, base_currency_eur = messages_data['usd'], messages_data['eur']
-        usd, eur = await converter.get_multi_exchange()
-
-        first_name = callback.from_user.first_name
-        answer_message = f"{messages_data['greetings']}{hbold(first_name)}\n\n"
-        answer_message = answer_message + f"{hbold(messages_data['currency'])}\n"
-        answer_message = answer_message + f"{base_currency_usd}🇺🇸 : {hbold(usd)}₽    {base_currency_eur}🇪🇺 : {hbold(eur)}₽\n\n"
-        answer_message = answer_message + f"{hbold(messages_data['user_profile'])}\n"
-        answer_message = answer_message + f"{messages_data['user_id']}{hbold(user_id)}\n"
-        answer_message = answer_message + f"{messages_data['user_username']}@{hbold(username)}\n"
-        answer_message = answer_message + f"{messages_data['wins']}{hbold(wins)}\n\n"
-        answer_message = answer_message + f"{hbold(messages_data['user_balance'])}\n"
-        answer_message = answer_message + f"{messages_data['user_chips']}{hbold(amount)}\n"
+    answer_message = await prepare_user_profile(user_data, first_name)
 
     await callback.message.edit_text(answer_message, reply_markup=back_main_menu_keyboard)
 
@@ -85,17 +60,24 @@ async def user_profile(callback: CallbackQuery):
 @router.callback_query(F.data == 'game')
 async def game_slot(callback: CallbackQuery, ):
     await callback.answer()
-    user_value = user_data_bet.get(callback.from_user.id, 10)
-    await callback.message.edit_text(f"Баланс", reply_markup=get_bet_keyboard(str(user_value)))
+
+    user_id = callback.from_user.id
+    user_data = (await db.get_user_balance(user_id))[0] if user_id else None
+    user_value = user_data_bet.get(user_id, 10)
+    await callback.message.edit_text(
+        f"{hbold(messages_data['current_balance'])}{hbold(user_data)}{messages_data['chips']}",
+        reply_markup=get_bet_keyboard(str(user_value))
+    )
 
 @router.callback_query(F.data.startswith("num_"))
 async def callbacks_num(callback: CallbackQuery):
 
-    user_value = user_data_bet.get(callback.from_user.id, 10)
+    user_id = callback.from_user.id
+    user_value = user_data_bet.get(user_id, 10)
     action = callback.data.split("_")[1]
 
     async def update_bet(new_value):
-        user_data_bet[callback.from_user.id] = new_value
+        user_data_bet[user_id] = new_value
         await callback.message.edit_reply_markup(reply_markup=get_bet_keyboard(str(new_value)))
 
     if action == "decr" and user_value - 10 >= 10:
@@ -109,12 +91,19 @@ async def callbacks_num(callback: CallbackQuery):
     elif action == "double" and user_value * 2 <= 500:
         await update_bet(user_value * 2)
     else:
-        await callback.answer("Ставка не может быть " + ("больше 500" if action in ["incr", "max", "double"] else "меньше 10"))
+        await callback.answer(
+            f"{messages_data['bet_cnt']}"
+            + (
+                f"{messages_data['more_500']}"
+                if action in ["incr", "max", "double"]
+                else f"{messages_data['less_10']}"
+            )
+        )
 
 @router.callback_query(F.data == 'bet')
 async def twist_slot(callback: CallbackQuery):
     user_value = user_data_bet.get(callback.from_user.id, 10)
-    await callback.answer(f"Ставка: {user_value}")
+    await callback.answer(f"{messages_data['bet_value']}{user_value}")
 
 
 @router.callback_query(F.data == 'twist')
@@ -144,8 +133,12 @@ async def twist_slot(callback: CallbackQuery):
 
     await callback.message.answer(f"{score_change}")
 
-    user_value = user_data_bet.get(callback.from_user.id, 10)
-    await callback.message.answer(f"Баланс", reply_markup=get_bet_keyboard(str(user_value)))
+    user_id = callback.from_user.id
+    user_data = (await db.get_user_balance(user_id))[0] if user_id else None
+    user_value = user_data_bet.get(user_id, 10)
+    await callback.message.answer(
+        f"{hbold(messages_data['current_balance'])}{hbold(user_data)}{messages_data['chips']}",
+        reply_markup=get_bet_keyboard(str(user_value)))
 
 
 
