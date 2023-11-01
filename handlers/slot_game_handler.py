@@ -7,12 +7,10 @@ from aiogram.enums.dice_emoji import DiceEmoji
 from lexicon.subloader import JSONFileManager
 from database.db import DatabaseManager
 from utils.currency import CurrencyConverter
-from utils.user_data import prepare_user_profile
 from utils.slot_sup import (format_number,
                             get_str_combo, 
                             get_result)
 from keyboards.inlinekb import (menu_keyboard, 
-                                back_main_menu_keyboard, 
                                 get_bet_keyboard)
 
 router = Router()
@@ -27,41 +25,6 @@ file_manager = JSONFileManager()
 commands_data = file_manager.get_json("commands.json")
 messages_data = file_manager.get_json("messages.json")
 
-
-@router.callback_query(F.data == 'start_profile')
-async def start_user_profile(callback: CallbackQuery):
-    await callback.answer(messages_data['accepted_req'])
-
-    answer_message = f"{messages_data['greet_message']}"
-    await callback.message.edit_text(answer_message, reply_markup=None)
-
-    user_id = callback.from_user.id
-    first_name = callback.from_user.first_name
-    user_data = await db.get_user_data(user_id) if user_id else None
-
-    answer_message = await prepare_user_profile(user_data, first_name)
-
-    await callback.message.answer(answer_message, reply_markup=back_main_menu_keyboard)
-
-
-@router.callback_query(F.data == 'profile')
-async def user_profile(callback: CallbackQuery):
-    await callback.answer(messages_data['accepted_req'])
-
-    user_id = callback.from_user.id
-    first_name = callback.from_user.first_name
-    user_data = await db.get_user_data(user_id) if user_id else None
-
-    answer_message = await prepare_user_profile(user_data, first_name)
-
-    await callback.message.edit_text(answer_message, reply_markup=back_main_menu_keyboard)
-
-
-
-
-
-
-
 @router.callback_query(F.data == 'game')
 async def game_slot(callback: CallbackQuery, ):
     await callback.answer()
@@ -70,7 +33,7 @@ async def game_slot(callback: CallbackQuery, ):
     user_data = (await db.get_user_balance(user_id))[0] if user_id else None
     user_value = user_data_bet.get(user_id, 10)
     await callback.message.edit_text(
-        f"{hbold(messages_data['current_balance'])}{hbold(format_number(user_data))}{messages_data['chips']}\n{hbold(messages_data['change_bet'])}",
+        f"{hbold(messages_data['current_balance'])}{hbold(format_number(user_data))}{messages_data['chips']}\n\n{hbold(messages_data['change_bet'])}",
         reply_markup=get_bet_keyboard(str(user_value))
     )
 
@@ -139,21 +102,8 @@ async def twist_slot(callback: CallbackQuery):
 
         user_data = (await db.get_user_balance(user_id))[0] if user_id else None
         await callback.message.answer(
-            f"{hbold(messages_data['current_balance'])}{hbold(format_number(user_data))}{messages_data['chips']}\n{hbold(messages_data['change_bet'])}",
+            f"{hbold(messages_data['current_balance'])}{hbold(format_number(user_data))}{messages_data['chips']}\n\n{hbold(messages_data['change_bet'])}",
             reply_markup=get_bet_keyboard(str(user_value)))
         
     else:
         await callback.message.edit_text(f"{hbold(messages_data['no_money'])}", reply_markup=menu_keyboard)
-
-
-
-
-
-
-
-
-
-@router.callback_query(F.data == 'back_main_menu')
-async def back_menu(callback: CallbackQuery):
-    await callback.answer()
-    await callback.message.edit_text(f"{messages_data['main_menu']}", reply_markup=menu_keyboard)

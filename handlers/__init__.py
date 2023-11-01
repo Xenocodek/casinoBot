@@ -1,3 +1,4 @@
-from . import cmd_handlers
-from . import callback_handlers
+from . import start_handler
+from . import profile_handler
+from . import slot_game_handler
 from . import other_handlers

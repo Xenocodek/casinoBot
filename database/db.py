@@ -6,9 +6,17 @@ import sqlite3 as sq
 
 class DatabaseManager:
     def __init__(self, db_file='database/casino_bot.db'):
+        """
+        Initializes the DatabaseManager class.
+        """
+
         self.db_file = db_file
 
     def connection(self):
+        """
+        Connects to the database and returns a connection and cursor object.
+        """
+
         try:
             conn = sq.connect(self.db_file)
             cur = conn.cursor()
@@ -19,6 +27,10 @@ class DatabaseManager:
 
 
     async def db_start(self):
+        """
+        Creates tables in the database if they don't exist.
+        """
+
         conn, cur = self.connection()
         if conn is None:
             return
@@ -64,6 +76,10 @@ class DatabaseManager:
         conn.close()
 
     async def new_user(self, user_id, username, user_first_name, user_last_name):
+        """
+        Creates a new user in the database.
+        """
+        
         try:
             conn, cur = self.connection()
             if conn is None:
@@ -72,6 +88,7 @@ class DatabaseManager:
             user = cur.execute(
                 "SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
             
+            # Check if the user already exists
             if not user:
                 desired_timezone = pytz.timezone('Europe/Moscow')
                 created = datetime.now(desired_timezone).strftime('%Y-%m-%d %H:%M:%S')
@@ -81,11 +98,13 @@ class DatabaseManager:
                 transaction_type = "Registration"
                 currency = "ALM"
                 
+                # Insert the new user into the 'users' table
                 cur.execute(
                     "INSERT INTO users (user_id, username, user_first_name, user_last_name, registration_date) VALUES (?, ?, ?, ?, ?)",
                     (user_id, username, user_first_name, user_last_name, created),
                 )
 
+                # Generate a unique balance ID and insert user's initial balance in the 'balances' table
                 while True:
                     balance_id = random.randint(1000, 9999)
 
@@ -99,24 +118,30 @@ class DatabaseManager:
                     (balance_id, user_id, amount, wins, currency, time_updated),
                 )
 
+                # Add a transaction record for the initial registration
                 cur.execute(
                     "INSERT INTO transactions (balance_id, transaction_type, amount, registration_date) VALUES (?, ?, ?, ?)",
                     (balance_id, transaction_type, amount, time_updated),
                 )
 
-                conn.commit()
+                conn.commit()   # Commit the transaction to the database
 
         except Exception as e:
             print(f"Error: {e}")
         finally:
-            conn.close()
+            conn.close()    # Close the database connection
 
     async def get_user_data(self, user_id):
+        """
+        Retrieves user data based on the user ID.
+        """
+
         try:
             conn, cur = self.connection()
             if conn is None:
                 return
             
+            # Fetch user data based on the user ID from 'users' and 'balances' tables
             user_data = cur.execute(
                 """
                 SELECT users.user_id, users.username, balances.total, balances.wins
@@ -127,19 +152,24 @@ class DatabaseManager:
             
             conn.close()
 
-            return user_data
+            return user_data    # Return the fetched user data
 
         except Exception as e:
             print(f"Error: {e}")
         finally:
-            conn.close()
+            conn.close()    # Close the database connection
 
     async def get_user_balance(self, user_id):
+        """
+        Retrieves the balance of a user based on the user ID.
+        """
+        
         try:
             conn, cur = self.connection()
             if conn is None:
                 return
             
+            # Fetch the user's balance from the 'balances' table based on the user ID
             user_data = cur.execute(
                 """
                 SELECT balances.total
@@ -150,9 +180,9 @@ class DatabaseManager:
             
             conn.close()
 
-            return user_data
+            return user_data    # Return the fetched user data
 
         except Exception as e:
             print(f"Error: {e}")
         finally:
-            conn.close()
+            conn.close()    # Close the database connection
