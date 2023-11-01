@@ -39,7 +39,7 @@ class DatabaseManager:
                     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
                     balance_id INTEGER NOT NULL UNIQUE,
                     user_id REFERENCES users(user_id),
-                    amount INTEGER,
+                    total REAL,
                     wins INTEGER,
                     currency VARCHAR(3),
                     last_updated TIMESTAMP
@@ -51,7 +51,7 @@ class DatabaseManager:
                     balance_id REFERENCES balances(balance_id),
                     transaction_type VARCHAR(64),
                     combination VARCHAR(64),
-                    amount INTEGER,
+                    amount REAL,
                     registration_date TIMESTAMP
             );
             """
@@ -95,7 +95,7 @@ class DatabaseManager:
                         break
                 
                 cur.execute(
-                    "INSERT INTO balances (balance_id, user_id, amount, wins, currency, last_updated) VALUES (?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO balances (balance_id, user_id, total, wins, currency, last_updated) VALUES (?, ?, ?, ?, ?, ?)",
                     (balance_id, user_id, amount, wins, currency, time_updated),
                 )
 
@@ -119,7 +119,7 @@ class DatabaseManager:
             
             user_data = cur.execute(
                 """
-                SELECT users.user_id, users.username, balances.amount, balances.wins
+                SELECT users.user_id, users.username, balances.total, balances.wins
                 FROM users
                 JOIN balances ON users.user_id = balances.user_id
                 WHERE users.user_id = ?;
@@ -142,7 +142,7 @@ class DatabaseManager:
             
             user_data = cur.execute(
                 """
-                SELECT balances.amount
+                SELECT balances.total
                 FROM users
                 JOIN balances ON users.user_id = balances.user_id
                 WHERE users.user_id = ?;

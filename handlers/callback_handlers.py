@@ -8,7 +8,12 @@ from lexicon.subloader import JSONFileManager
 from database.db import DatabaseManager
 from utils.currency import CurrencyConverter
 from utils.user_data import prepare_user_profile
-from keyboards.inlinekb import menu_keyboard, back_main_menu_keyboard, get_bet_keyboard
+from utils.slot_sup import (format_number,
+                            get_str_combo, 
+                            get_result)
+from keyboards.inlinekb import (menu_keyboard, 
+                                back_main_menu_keyboard, 
+                                get_bet_keyboard)
 
 router = Router()
 
@@ -25,7 +30,7 @@ messages_data = file_manager.get_json("messages.json")
 
 @router.callback_query(F.data == 'start_profile')
 async def start_user_profile(callback: CallbackQuery):
-    await callback.answer("Запрос принят!")
+    await callback.answer(messages_data['accepted_req'])
 
     answer_message = f"{messages_data['greet_message']}"
     await callback.message.edit_text(answer_message, reply_markup=None)
@@ -41,7 +46,7 @@ async def start_user_profile(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'profile')
 async def user_profile(callback: CallbackQuery):
-    await callback.answer("Запрос принят!")
+    await callback.answer(messages_data['accepted_req'])
 
     user_id = callback.from_user.id
     first_name = callback.from_user.first_name
@@ -65,7 +70,7 @@ async def game_slot(callback: CallbackQuery, ):
     user_data = (await db.get_user_balance(user_id))[0] if user_id else None
     user_value = user_data_bet.get(user_id, 10)
     await callback.message.edit_text(
-        f"{hbold(messages_data['current_balance'])}{hbold(user_data)}{messages_data['chips']}",
+        f"{hbold(messages_data['current_balance'])}{hbold(format_number(user_data))}{messages_data['chips']}\n{hbold(messages_data['change_bet'])}",
         reply_markup=get_bet_keyboard(str(user_value))
     )
 
@@ -110,36 +115,35 @@ async def twist_slot(callback: CallbackQuery):
 async def twist_slot(callback: CallbackQuery):
     await callback.answer()
 
-    await callback.message.delete()
-
-    data_slot = await callback.message.answer_dice(emoji=DiceEmoji.SLOT_MACHINE)
-    score_change = data_slot.dice.value
-    await sleep(2.0)
-
-    from typing import List
-    def get_combo_parts(dice_value: int) -> List[str]:
-
-        values = ["BAR", "GRAPES", "LEMON", "SEVEN"]
-
-        dice_value -= 1
-        result = []
-        for _ in range(3):
-            result.append(values[dice_value % 4])
-            dice_value //= 4
-        return result
-
-    score_change = get_combo_parts(1)
-
-
-    await callback.message.answer(f"{score_change}")
-
     user_id = callback.from_user.id
-    user_data = (await db.get_user_balance(user_id))[0] if user_id else None
+    user_data = (await db.get_user_balance(user_id))[0]
     user_value = user_data_bet.get(user_id, 10)
-    await callback.message.answer(
-        f"{hbold(messages_data['current_balance'])}{hbold(user_data)}{messages_data['chips']}",
-        reply_markup=get_bet_keyboard(str(user_value)))
 
+    if user_data >= user_value:
+        await callback.message.delete()
+
+        data_slot = await callback.message.answer_dice(emoji=DiceEmoji.SLOT_MACHINE)
+        score_change = data_slot.dice.value
+        await sleep(2.0)
+
+
+        combinations = await get_str_combo(score_change)
+        await callback.message.answer(f"Комбинация {combinations}")
+
+        slot_result = await get_result(score_change,  user_value)
+        if slot_result == 0:
+            await callback.message.answer(f"{messages_data['lose']}")
+        else:
+            await callback.message.answer(f"{hbold(messages_data['win'])}{hbold(format_number(slot_result))}{messages_data['chips']}")
+
+
+        user_data = (await db.get_user_balance(user_id))[0] if user_id else None
+        await callback.message.answer(
+            f"{hbold(messages_data['current_balance'])}{hbold(format_number(user_data))}{messages_data['chips']}\n{hbold(messages_data['change_bet'])}",
+            reply_markup=get_bet_keyboard(str(user_value)))
+        
+    else:
+        await callback.message.edit_text(f"{hbold(messages_data['no_money'])}", reply_markup=menu_keyboard)
 
 
 
