@@ -76,6 +76,7 @@ class DatabaseManager:
         conn.commit()
         conn.close()
 
+
     async def new_user(self, user_id, username, user_first_name, user_last_name):
         """
         Creates a new user in the database.
@@ -101,7 +102,10 @@ class DatabaseManager:
                 
                 # Insert the new user into the 'users' table
                 cur.execute(
-                    "INSERT INTO users (user_id, username, user_first_name, user_last_name, registration_date) VALUES (?, ?, ?, ?, ?)",
+                    """
+                    INSERT INTO users (user_id, username, user_first_name, user_last_name, registration_date) 
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
                     (user_id, username, user_first_name, user_last_name, created),
                 )
 
@@ -115,13 +119,19 @@ class DatabaseManager:
                         break
                 
                 cur.execute(
-                    "INSERT INTO balances (balance_id, user_id, total, wins, currency, last_updated) VALUES (?, ?, ?, ?, ?, ?)",
+                    """
+                    INSERT INTO balances (balance_id, user_id, total, wins, currency, last_updated) 
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
                     (balance_id, user_id, amount, wins, currency, time_updated),
                 )
 
                 # Add a transaction record for the initial registration
                 cur.execute(
-                    "INSERT INTO transactions (balance_id, transaction_type, amount, last_updated) VALUES (?, ?, ?, ?)",
+                    """
+                    INSERT INTO transactions (balance_id, transaction_type, amount, last_updated) 
+                    VALUES (?, ?, ?, ?)
+                    """,
                     (balance_id, transaction_type, amount, time_updated),
                 )
 
@@ -131,6 +141,7 @@ class DatabaseManager:
             print(f"Error: {e}")
         finally:
             conn.close()    # Close the database connection
+
 
     async def get_admins(self, user_id):
         """
@@ -158,6 +169,7 @@ class DatabaseManager:
             print(f"Error: {e}")
         finally:
             conn.close()    # Close the database connection
+
 
     async def get_user_data(self, user_id):
         """
@@ -187,6 +199,7 @@ class DatabaseManager:
         finally:
             conn.close()    # Close the database connection
 
+
     async def get_user_balance(self, user_id):
         """
         Retrieves the balance of a user based on the user ID.
@@ -209,6 +222,69 @@ class DatabaseManager:
             conn.close()
 
             return user_data    # Return the fetched user data
+
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
+            conn.close()    # Close the database connection
+
+
+    async def change_balance(self, amount, wins, user_id):
+        """
+        Changes the balance of a user based on the user ID.
+        """
+        
+        try:
+            conn, cur = self.connection()
+            if conn is None:
+                return
+            
+            # Execute the SQL query to update the balance
+            cur.execute(
+                """
+                UPDATE balances
+                SET total = total + ?,
+                    wins = wins + ?
+                WHERE user_id = ?
+                """,
+                (amount, wins, user_id),
+            )   
+            
+            # Commit the changes to the database
+            conn.commit()
+
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
+            conn.close()    # Close the database connection
+
+    async def change__transactions(self, transaction_type, combination, amount, user_id):
+        """
+        Asynchronously changes the transactions in the database.
+        """
+
+        try:
+            conn, cur = self.connection()
+            if conn is None:
+                return
+            
+            # Get the current time in the desired timezone
+            desired_timezone = pytz.timezone('Europe/Moscow')
+            time_updated = datetime.now(desired_timezone).strftime('%Y-%m-%d %H:%M:%S')
+            
+            # Insert a new record into the 'transactions' table
+            cur.execute(
+                """
+                INSERT INTO transactions (balance_id, transaction_type, combination, amount, last_updated)
+                SELECT balances.balance_id, ?, ?, ?, ?
+                FROM balances
+                WHERE balances.user_id = ?;
+                """,
+                (transaction_type, combination, amount, time_updated, user_id),
+            )
+
+            # Commit the changes to the database
+            conn.commit()
 
         except Exception as e:
             print(f"Error: {e}")

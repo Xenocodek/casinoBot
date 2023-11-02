@@ -13,7 +13,6 @@ class BotConfig:
     """Bot configuration."""
 
     token: str = os.getenv("API_TOKEN")
-    admin_id: int = os.getenv("ADMIN_ID")
 
 
 @dataclass

@@ -27,27 +27,64 @@ messages_data = file_manager.get_json("messages.json")
 
 @router.callback_query(F.data == 'game')
 async def game_slot(callback: CallbackQuery, ):
+    """
+    Handles the callback query for the 'game' data.
+    """
+    # Respond to the callback query
     await callback.answer()
 
+    # Get the user ID from the callback query
     user_id = callback.from_user.id
-    user_data = (await db.get_user_balance(user_id))[0] if user_id else None
+
+    # Check if the user ID exists
+    if user_id:
+        # Get the user's balance from the database
+        user_data = await db.get_user_balance(user_id)
+        # Extract the first element from the user data
+        user_data = user_data[0]
+    else:
+        # If user ID does not exist, set user data to None
+        user_data = None
+
+    # Get the user's bet value from the user_data_bet dictionary
     user_value = user_data_bet.get(user_id, 10)
+
+    # Format and send the message to the user
+    message = (
+        f"{hbold(messages_data['current_balance'])}"
+        f"{hbold(format_number(user_data))}"
+        f"{messages_data['chips']}\n\n"
+        f"{hbold(messages_data['change_bet'])}"
+    )
     await callback.message.edit_text(
-        f"{hbold(messages_data['current_balance'])}{hbold(format_number(user_data))}{messages_data['chips']}\n\n{hbold(messages_data['change_bet'])}",
+        message,
         reply_markup=get_bet_keyboard(str(user_value))
     )
 
+
 @router.callback_query(F.data.startswith("num_"))
 async def callbacks_num(callback: CallbackQuery):
+    """
+    Handles callback queries related to the "num_" data.
+    """
 
+    # Get the user ID from the callback query
     user_id = callback.from_user.id
+
+    # Get the user's bet value from the user_data_bet dictionary
     user_value = user_data_bet.get(user_id, 10)
+
+    # Extract the action from the callback data
     action = callback.data.split("_")[1]
 
+    # Define an inner function to update the user's bet value
     async def update_bet(new_value):
+        # Update the user's bet value in the user_data_bet dictionary
         user_data_bet[user_id] = new_value
+        # Update the reply markup of the callback message
         await callback.message.edit_reply_markup(reply_markup=get_bet_keyboard(str(new_value)))
 
+    # Check the action and update the user's bet value accordingly
     if action == "decr" and user_value - 10 >= 10:
         await update_bet(user_value - 10)
     elif action == "min" and user_value > 10:
@@ -59,6 +96,7 @@ async def callbacks_num(callback: CallbackQuery):
     elif action == "double" and user_value * 2 <= 500:
         await update_bet(user_value * 2)
     else:
+        # If the action is not valid, send a message to the user
         await callback.answer(
             f"{messages_data['bet_cnt']}"
             + (
@@ -68,42 +106,82 @@ async def callbacks_num(callback: CallbackQuery):
             )
         )
 
+
 @router.callback_query(F.data == 'bet')
 async def twist_slot(callback: CallbackQuery):
+    """
+    A function that handles the callback query for the 'bet' data.
+    """
+    # Get the user's bet value from the user_data_bet dictionary
     user_value = user_data_bet.get(callback.from_user.id, 10)
+
+    # Send the user's bet value back to them
     await callback.answer(f"{messages_data['bet_value']}{user_value}")
 
 
 @router.callback_query(F.data == 'twist')
 async def twist_slot(callback: CallbackQuery):
+    """
+    Asynchronous function that handles the callback query for the 'twist' data.
+    """
+    # Answer the callback query
     await callback.answer()
-
+    
+    # Get the user ID from the callback query
     user_id = callback.from_user.id
+
+    # Get the user's balance from the database
     user_data = (await db.get_user_balance(user_id))[0]
+
+    # Get the user's bet value or default to 10
     user_value = user_data_bet.get(user_id, 10)
 
+    # Check if the user has enough balance to place the bet
     if user_data >= user_value:
+        # Delete the message that triggered the callback query
         await callback.message.delete()
 
+        # Send a dice emoji and wait for 2 seconds
         data_slot = await callback.message.answer_dice(emoji=DiceEmoji.SLOT_MACHINE)
         score_change = data_slot.dice.value
         await sleep(2.0)
 
-
+        # Get the combinations and format the result
         combinations = await get_str_combo(score_change)
-        await callback.message.answer(f"Комбинация {combinations}")
+        formatted_combination = ' '.join(combinations)
 
+        # Get the result of the slot game
         slot_result = await get_result(score_change,  user_value)
+
         if slot_result == 0:
-            await callback.message.answer(f"{messages_data['lose']}")
+            # User lost the bet
+            await callback.message.answer(f"{messages_data['lose']}-{hbold(user_value)}{messages_data['chips']}")
+
+            # Change the user's balance
+            await db.change_balance(-user_value, 0, user_id)
+
+            # Log the transaction
+            await db.change__transactions(messages_data['transaction_lose'], formatted_combination, -user_value, user_id)
+
         else:
+            # User won the bet
             await callback.message.answer(f"{hbold(messages_data['win'])}{hbold(format_number(slot_result))}{messages_data['chips']}")
+            
+            # Change the user's balance
+            await db.change_balance(slot_result, 1, user_id)
+
+            # Log the transaction
+            await db.change__transactions(messages_data['transaction_win'], formatted_combination, slot_result, user_id)
 
 
+        # Get the updated user balance from the database
         user_data = (await db.get_user_balance(user_id))[0] if user_id else None
+
+        # Send a message with the current balance and prompt the user to change the bet
         await callback.message.answer(
             f"{hbold(messages_data['current_balance'])}{hbold(format_number(user_data))}{messages_data['chips']}\n\n{hbold(messages_data['change_bet'])}",
             reply_markup=get_bet_keyboard(str(user_value)))
         
     else:
+        # User does not have enough balance to place the bet
         await callback.message.edit_text(f"{hbold(messages_data['no_money'])}", reply_markup=menu_keyboard)
