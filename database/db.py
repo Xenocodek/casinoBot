@@ -43,7 +43,8 @@ class DatabaseManager:
                     username        VARCHAR(64),
                     user_first_name VARCHAR(64),
                     user_last_name  VARCHAR(64),
-                    registration_date TIMESTAMP
+                    registration_date TIMESTAMP,
+                    is_admin BOOLEAN DEFAULT(FALSE)
             );
             """,
             """
@@ -64,7 +65,7 @@ class DatabaseManager:
                     transaction_type VARCHAR(64),
                     combination VARCHAR(64),
                     amount REAL,
-                    registration_date TIMESTAMP
+                    last_updated TIMESTAMP
             );
             """
         ]
@@ -120,11 +121,38 @@ class DatabaseManager:
 
                 # Add a transaction record for the initial registration
                 cur.execute(
-                    "INSERT INTO transactions (balance_id, transaction_type, amount, registration_date) VALUES (?, ?, ?, ?)",
+                    "INSERT INTO transactions (balance_id, transaction_type, amount, last_updated) VALUES (?, ?, ?, ?)",
                     (balance_id, transaction_type, amount, time_updated),
                 )
 
                 conn.commit()   # Commit the transaction to the database
+
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
+            conn.close()    # Close the database connection
+
+    async def get_admins(self, user_id):
+        """
+        Retrieves a list of admin IDs from the database.
+        """
+        try:
+            conn, cur = self.connection()
+            if conn is None:
+                return
+            
+            # Fetch user data based on the user ID from 'users' and 'balances' tables
+            admin_id = cur.execute(
+
+                """
+                SELECT user_id 
+                FROM users 
+                WHERE user_id = ? AND is_admin IS TRUE;
+                """, (user_id,)).fetchone()
+            
+            conn.close()
+
+            return admin_id    # Return the fetched user data
 
         except Exception as e:
             print(f"Error: {e}")
