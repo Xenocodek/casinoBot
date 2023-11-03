@@ -12,7 +12,8 @@ from database.db import DatabaseManager
 from handlers import (start_handler, 
                     profile_handler,
                     admin_handler, 
-                    slot_game_handler, 
+                    slot_game_handler,
+                    currency_handler, 
                     other_handlers)
 
 async def start():
@@ -54,6 +55,7 @@ async def start():
                 admin_handler.router,
                 profile_handler.router,
                 slot_game_handler.router,
+                currency_handler.router,
                 other_handlers.router)
 
     try:

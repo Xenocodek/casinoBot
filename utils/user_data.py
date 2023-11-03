@@ -30,8 +30,6 @@ async def prepare_user_profile(user_data, first_name):
         # Create a list of strings to be joined later
         parts = [
             f"{messages_data['greetings']}{hbold(first_name)}\n\n",
-            # f"{hbold(messages_data['currency'])}\n",
-            # f"{base_currency_usd}🇺🇸 : {hbold(usd)}₽    {base_currency_eur}🇪🇺 : {hbold(eur)}₽\n\n",
             f"{hbold(messages_data['user_profile'])}\n",
             f"{messages_data['user_id']}{hbold(user_id)}\n",
             f"{messages_data['user_username']}@{hbold(username)}\n",
@@ -44,3 +42,19 @@ async def prepare_user_profile(user_data, first_name):
         return ''.join(parts)
     # If user_data is empty, return None
     return None
+
+
+async def prepare_curency():
+
+    # Get base currency exchange rates
+    base_currency_usd, base_currency_eur = messages_data['usd'], messages_data['eur']
+    usd, eur = await converter.get_multi_exchange(base_currency_usd, base_currency_eur)
+
+    # Create a list of strings to be joined later
+    parts = [
+        f"{hbold(messages_data['currency'])}\n\n",
+        f"{base_currency_usd}🇺🇸 : {hbold(usd)}₽    {base_currency_eur}🇪🇺 : {hbold(eur)}₽\n\n",
+    ]
+
+    # Join all the parts into a single string and return it
+    return ''.join(parts)
