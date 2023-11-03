@@ -290,3 +290,54 @@ class DatabaseManager:
             print(f"Error: {e}")
         finally:
             conn.close()    # Close the database connection
+
+    
+    async def give_daily_bonus(self):
+        """
+        Asynchronously gives a daily bonus to users who have a balance less than 1000.
+        """
+
+        try:
+            conn, cur = self.connection()
+            if conn is None:
+                return
+            
+            # Set the desired timezone and get the current time
+            desired_timezone = pytz.timezone('Europe/Moscow')
+            time_updated = datetime.now(desired_timezone).strftime('%Y-%m-%d %H:%M:%S')
+
+            # Set the transaction type and amount for the daily bonus
+            transaction_type = "LOW Bonus"
+            amount = 1000
+            
+            # Insert a new transaction record for each user with a balance less than 1000
+            cur.execute(
+                """
+                INSERT INTO transactions (balance_id, transaction_type, amount, last_updated)
+                SELECT balances.balance_id, ?, ?, ?
+                FROM balances
+                WHERE balances.total < 1000;
+                """,
+                (transaction_type, amount, time_updated),
+            )
+
+            # Commit the transaction to the database
+            conn.commit()
+
+            # Update the balance for each user with a balance less than 1000
+            cur.execute(
+                """
+                UPDATE balances
+                SET total = ?, last_updated = ?
+                WHERE total < 1000;
+                """,
+                (amount, time_updated),
+            )
+            
+            # Commit the changes to the database
+            conn.commit()
+
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
+            conn.close()    # Close the database connection
