@@ -16,7 +16,7 @@ class CurrencyConverter:
         """
 
         # Set the API endpoint for the latest exchange rates
-        self.api_url = "https://api.apilayer.com/fixer/latest"
+        self.api_url = "https://api.apilayer.com/exchangerates_data/latest"
 
         # Set the currency symbol for which we want to get the exchange rate
         self.symbols = "RUB"

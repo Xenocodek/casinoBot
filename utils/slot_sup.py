@@ -14,7 +14,8 @@ def format_number(num):
         return str(int(num))
     
     # If it doesn't, return the formatted number as a string
-    return formatted_num 
+    return formatted_num
+    
     
 async def get_str_combo(dice_value: int) -> List[str]:
     """
@@ -41,6 +42,7 @@ async def get_str_combo(dice_value: int) -> List[str]:
 
     # Return the result list
     return result
+
 
 async def get_result(dice_value, value):
     """
