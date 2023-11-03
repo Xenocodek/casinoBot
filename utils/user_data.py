@@ -19,6 +19,10 @@ async def prepare_user_profile(user_data, first_name):
         # Unpack user_data into variables
         user_id, username, amount, wins = user_data
 
+        # If username is None, set it to 'None'
+        if username is None:
+            username = messages_data['username_null']
+
         # Get base currency exchange rates
         base_currency_usd, base_currency_eur = messages_data['usd'], messages_data['eur']
         usd, eur = await converter.get_multi_exchange(base_currency_usd, base_currency_eur)
