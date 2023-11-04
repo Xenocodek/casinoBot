@@ -138,6 +138,8 @@ async def twist_slot(callback: CallbackQuery):
         data_slot = await callback.message.answer_dice(emoji=DiceEmoji.SLOT_MACHINE)
         score_change = data_slot.dice.value
 
+        await asyncio.sleep(2.0)
+
         # Get the combinations and format the result
         combinations = await get_str_combo(score_change)
         formatted_combination = ' '.join(combinations)
