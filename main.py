@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import aioschedule
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime
@@ -45,9 +44,9 @@ async def start():
     dp.startup.register(db.db_start)
 
     # Initialize a scheduler
-    scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
-    scheduler.add_job(db.give_daily_bonus, 'cron', hour=00, minute=1, start_date = datetime.now())
-    scheduler.start()
+    # scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
+    # scheduler.add_job(db.give_daily_bonus, 'cron', hour=00, minute=1, start_date = datetime.now())
+    # scheduler.start()
 
     # Include the router
     dp.include_routers(

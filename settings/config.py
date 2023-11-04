@@ -16,6 +16,17 @@ class BotConfig:
 
 
 @dataclass
+class DatabaseConfig:
+    """Database Config."""
+
+    host: str = os.getenv("MYSQLHOST")
+    port: int = int(os.getenv("MYSQLPORT"))
+    user: str = os.getenv("MYSQLUSER")
+    password: str = os.getenv("MYSQLPASSWORD")
+    database: str = os.getenv("MYSQL_DATABASE")
+
+
+@dataclass
 class Configuration:
     """All in one configuration's class."""
 
