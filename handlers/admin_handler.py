@@ -3,15 +3,12 @@ from aiogram.types import CallbackQuery
 from aiogram.types import Message
 from aiogram.filters import Command
 
-from database.db import DatabaseManager
 
 from keyboards.adminkb import start_admin_keyboard
 
 from filters.is_admin import IsAdmin
 
 router = Router()
-
-db = DatabaseManager()
 
 router.message.filter(IsAdmin())
 router.callback_query.filter(IsAdmin())

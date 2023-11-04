@@ -11,17 +11,31 @@ dbconfig = DatabaseConfig()
 
 
 class DatabaseManager:
-    def __init__(self, host = dbconfig.host, port = dbconfig.port,  user = dbconfig.user, password = dbconfig.password, dbname = dbconfig.database):
+    def __init__(self, host = dbconfig.host, 
+                port = dbconfig.port,  
+                user = dbconfig.user, 
+                password = dbconfig.password, 
+                dbname = dbconfig.database):
+        
+        """
+        Initialize the class with database connection parameters.
+        """
+        
+        # Assign the input parameters to class attributes
         self.host = host
         self.port = port
         self.user = user
         self.password = password
         self.dbname = dbname
+
+        # Initialize the connection to None
         self.connection = None
 
     def open_connection(self):
+        # Check if a connection already exists
         if not self.connection:
             try:
+                # Establish a new connection using pymysql
                 self.connection = pymysql.connect(host=self.host,
                                                 port=self.port,
                                                 user=self.user,
@@ -29,22 +43,33 @@ class DatabaseManager:
                                                 db=self.dbname,
                                                 charset='utf8mb4',
                                                 cursorclass=pymysql.cursors.DictCursor)
+                # Log a success message if connection is successful
                 logging.info('Connection to the database was successful.')
             except pymysql.MySQLError as e:
+                # Log an error message if connection fails and raise the exception
                 logging.info(f'Connection to the database failed: {e}')
                 raise e
     
     def close_connection(self):
+        # Check if the connection exists
         if self.connection:
+            # Close the connection
             self.connection.close()
+            # Set the connection to None
             self.connection = None
+            # Log the closing of the database connection
             logging.info('Database connection closed.')
 
 
-    def db_start(self):
+    async def db_start(self):
+        """
+        Creates tables in the database if they don't exist.
+        """
+
         try:
             self.open_connection()
             with self.connection.cursor() as cursor:
+                # Define SQL queries to create tables if they don't exist
                 queries = [
                     """CREATE TABLE IF NOT EXISTS users (
                             id INT PRIMARY KEY AUTO_INCREMENT,
@@ -76,9 +101,11 @@ class DatabaseManager:
                     );"""
                 ]
 
+                # Execute each query
                 for query in queries:
                     cursor.execute(query)
 
+                # Commit the changes
                 self.connection.commit()
                 logging.info('Database tables have been created')
 
@@ -154,3 +181,187 @@ class DatabaseManager:
             logging.error(f'Database operation failed: {e}')
         finally:
             self.close_connection()
+
+
+    async def get_admins(self, user_id):
+        """
+        Retrieves a list of admin IDs from the database.
+        """
+        try:
+            self.open_connection()
+
+            with self.connection.cursor() as cursor:
+                # Fetch user data based on the user ID from 'users' table
+                cursor.execute(
+                    """
+                    SELECT user_id 
+                    FROM users 
+                    WHERE user_id = %s AND is_admin = 1;
+                    """, (user_id,))
+                admin_id = cursor.fetchone()
+                
+                logging.info('The request to get admins has been completed')
+                return admin_id  # Return the fetched user data
+
+        except pymysql.MySQLError as e:
+            logging.error(f'Database operation failed: {e}')
+        finally:
+            self.close_connection()
+
+    
+    async def get_user_data(self, user_id):
+        """
+        Retrieves user data based on the user ID.
+        """
+        try:
+            self.open_connection()
+            with self.connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT users.user_id, users.username, balances.total, balances.wins
+                    FROM users
+                    JOIN balances ON users.user_id = balances.user_id
+                    WHERE users.user_id = %s;
+                    """, (user_id,))
+                user_data = cursor.fetchone()
+                
+                logging.info('The request to get user data has been completed')
+                return user_data  # Return the fetched user data
+
+        except pymysql.MySQLError as e:
+            logging.error(f"Database operation failed: {e}")
+        finally:
+            self.close_connection()
+
+    
+    async def get_user_balance(self, user_id):
+        """
+        Retrieves the balance of a user based on the user ID.
+        """
+        try:
+            self.open_connection()  # Assumes this is an async call
+            with self.connection.cursor() as cursor:  # Assumes self.connection supports async context manager
+                cursor.execute(
+                    """
+                    SELECT balances.total
+                    FROM users
+                    JOIN balances ON users.user_id = balances.user_id
+                    WHERE users.user_id = %s;
+                    """, (user_id,))
+                balance_data = cursor.fetchone()
+                
+                balance = balance_data['total'] if balance_data else None
+                
+                return balance  # Return the fetched balance
+
+        except pymysql.MySQLError as e:  # Replace with your async DB library's exception if different
+            logging.error(f"Database operation failed: {e}")
+        finally:
+            self.close_connection()
+
+
+    async def change_balance(self, amount, wins, user_id):
+        """
+        Changes the balance of a user based on the user ID.
+        """
+        
+        try:
+            self.open_connection()  # Assumes this is an async call
+            with self.connection.cursor() as cursor:  # Assumes self.connection supports async context manager
+                # Execute the SQL query to update the balance
+                cursor.execute(
+                    """
+                    UPDATE balances
+                    SET total = total + %s,
+                        wins = wins + %s
+                    WHERE user_id = %s
+                    """,
+                    (amount, wins, user_id),
+                )
+                # Commit the changes to the database
+                self.connection.commit()
+
+                logging.info(f"User balance updated for user_id={user_id}, amount={amount}, wins={wins}")
+
+        except pymysql.MySQLError as e:  # Replace with your async DB library's exception if different
+            logging.error(f"Database operation failed: {e}")
+        finally:
+            self.close_connection()  # Assumes this is an async call
+
+    
+    async def change_transactions(self, transaction_type, combination, amount, user_id):
+        """
+        Asynchronously changes the transactions in the database.
+        """
+        try:
+            self.open_connection()  # Make sure this is an async call
+            with self.connection.cursor() as cursor:  # Assumes self.connection supports async context manager
+                # Get the current time in the desired timezone
+                desired_timezone = pytz.timezone('Europe/Moscow')
+                time_updated = datetime.now(desired_timezone).strftime('%Y-%m-%d %H:%M:%S')
+                
+                # Insert a new record into the 'transactions' table
+                cursor.execute(
+                    """
+                    INSERT INTO transactions (balance_id, transaction_type, combination, amount, last_updated)
+                    SELECT balances.balance_id, %s, %s, %s, %s
+                    FROM balances
+                    WHERE balances.user_id = %s;
+                    """,
+                    (transaction_type, combination, amount, time_updated, user_id),
+                )
+
+                # Commit the changes to the database
+                self.connection.commit()
+
+                logging.info(f"Transaction changed for user_id={user_id}, amount={amount}, type={transaction_type}")
+
+        except Exception as e:  # Preferably use a more specific exception
+            logging.error(f"Error: {e}")
+        finally:
+            self.close_connection()  # Make sure this is an async call
+
+
+    async def give_daily_bonus(self):
+        """
+        Asynchronously gives a daily bonus to users who have a balance less than 1000.
+        """
+        try:
+            self.open_connection()  # Make sure this is an async call
+            with self.connection.cursor() as cursor:  # Assumes self.connection supports async context manager
+                # Set the desired timezone and get the current time
+                desired_timezone = pytz.timezone('Europe/Moscow')
+                time_updated = datetime.now(desired_timezone).strftime('%Y-%m-%d %H:%M:%S')
+
+                # Set the transaction type and amount for the daily bonus
+                transaction_type = "Daily Bonus"
+                bonus_amount = 1000
+
+                # Insert a new transaction record for each user with a balance less than 1000
+                cursor.execute(
+                    """
+                    INSERT INTO transactions (user_id, transaction_type, amount, last_updated)
+                    SELECT user_id, %s, %s, %s
+                    FROM balances
+                    WHERE total < 1000;
+                    """,
+                    (transaction_type, bonus_amount, time_updated),
+                )
+
+                # Update the balance for each user with a balance less than 1000
+                cursor.execute(
+                    """
+                    UPDATE balances
+                    SET total = total + %s, last_updated = %s
+                    WHERE total < 1000;
+                    """,
+                    (bonus_amount, time_updated),
+                )
+                
+                # Commit the changes to the database
+                self.connection.commit()
+
+        except Exception as e:  # Replace with more specific exception handling if possible
+            logging.error(f"Error: {e}")
+        finally:
+            self.close_connection()  # Make sure this is an async call

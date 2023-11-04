@@ -10,9 +10,9 @@ from settings.config import Configuration
 from database.db import DatabaseManager
 from handlers import (start_handler, 
                     profile_handler,
-                    admin_handler, 
                     slot_game_handler,
-                    currency_handler, 
+                    currency_handler,
+                    admin_handler, 
                     other_handlers)
 
 async def start():
@@ -44,17 +44,17 @@ async def start():
     dp.startup.register(db.db_start)
 
     # Initialize a scheduler
-    # scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
-    # scheduler.add_job(db.give_daily_bonus, 'cron', hour=00, minute=1, start_date = datetime.now())
-    # scheduler.start()
+    scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
+    scheduler.add_job(db.give_daily_bonus, 'cron', hour=00, minute=1, start_date = datetime.now())
+    scheduler.start()
 
     # Include the router
     dp.include_routers(
                 start_handler.router,
-                admin_handler.router,
                 profile_handler.router,
                 slot_game_handler.router,
                 currency_handler.router,
+                admin_handler.router,
                 other_handlers.router)
 
     try:

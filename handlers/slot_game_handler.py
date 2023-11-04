@@ -1,4 +1,4 @@
-from asyncio import sleep
+import asyncio
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 from aiogram.utils.markdown import hbold
@@ -37,14 +37,7 @@ async def game_slot(callback: CallbackQuery, ):
     user_id = callback.from_user.id
 
     # Check if the user ID exists
-    if user_id:
-        # Get the user's balance from the database
-        user_data = await db.get_user_balance(user_id)
-        # Extract the first element from the user data
-        user_data = user_data[0]
-    else:
-        # If user ID does not exist, set user data to None
-        user_data = None
+    balance = await db.get_user_balance(user_id) if user_id else None
 
     # Get the user's bet value from the user_data_bet dictionary
     user_value = user_data_bet.get(user_id, 10)
@@ -52,7 +45,7 @@ async def game_slot(callback: CallbackQuery, ):
     # Format and send the message to the user
     message = (
         f"{hbold(messages_data['current_balance'])}"
-        f"{hbold(format_number(user_data))}"
+        f"{hbold(format_number(balance))}"
         f"{messages_data['chips']}\n\n"
         f"{hbold(messages_data['change_bet'])}"
     )
@@ -131,20 +124,19 @@ async def twist_slot(callback: CallbackQuery):
     user_id = callback.from_user.id
 
     # Get the user's balance from the database
-    user_data = (await db.get_user_balance(user_id))[0]
+    balance = await db.get_user_balance(user_id) if user_id else None
 
     # Get the user's bet value or default to 10
     user_value = user_data_bet.get(user_id, 10)
 
     # Check if the user has enough balance to place the bet
-    if user_data >= user_value:
+    if balance >= user_value:
         # Delete the message that triggered the callback query
         await callback.message.delete()
 
         # Send a dice emoji and wait for 2 seconds
         data_slot = await callback.message.answer_dice(emoji=DiceEmoji.SLOT_MACHINE)
         score_change = data_slot.dice.value
-        await sleep(2.0)
 
         # Get the combinations and format the result
         combinations = await get_str_combo(score_change)
@@ -154,32 +146,35 @@ async def twist_slot(callback: CallbackQuery):
         slot_result = await get_result(score_change,  user_value)
 
         if slot_result == 0:
+            # Change the user's balance and Log the transaction
+            await asyncio.gather(
+            db.change_balance(-user_value, 0, user_id),
+            db.change_transactions(messages_data['transaction_lose'], formatted_combination, -user_value, user_id)
+            )
+
+            # User lost the bet
+            balance = balance - user_value
+
             # User lost the bet
             await callback.message.answer(f"{messages_data['lose']}-{hbold(user_value)}{messages_data['chips']}")
 
-            # Change the user's balance
-            await db.change_balance(-user_value, 0, user_id)
-
-            # Log the transaction
-            await db.change__transactions(messages_data['transaction_lose'], formatted_combination, -user_value, user_id)
-
         else:
+            # Change the user's balance and Log the transaction
+            await asyncio.gather(
+            db.change_balance(slot_result, 1, user_id),
+            db.change_transactions(messages_data['transaction_win'], formatted_combination, slot_result, user_id)
+            )
+
+            # User won the bet
+            balance = balance + slot_result
+
             # User won the bet
             await callback.message.answer(f"{hbold(messages_data['win'])}{hbold(format_number(slot_result))}{messages_data['chips']}")
-            
-            # Change the user's balance
-            await db.change_balance(slot_result, 1, user_id)
 
-            # Log the transaction
-            await db.change__transactions(messages_data['transaction_win'], formatted_combination, slot_result, user_id)
-
-
-        # Get the updated user balance from the database
-        user_data = (await db.get_user_balance(user_id))[0] if user_id else None
 
         # Send a message with the current balance and prompt the user to change the bet
         await callback.message.answer(
-            f"{hbold(messages_data['current_balance'])}{hbold(format_number(user_data))}{messages_data['chips']}\n\n{hbold(messages_data['change_bet'])}",
+            f"{hbold(messages_data['current_balance'])}{hbold(format_number(balance))}{messages_data['chips']}\n\n{hbold(messages_data['change_bet'])}",
             reply_markup=get_bet_keyboard(str(user_value)))
         
     else:

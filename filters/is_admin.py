@@ -22,7 +22,7 @@ class IsAdmin(BaseFilter):
 
         if admin_id and len(admin_id) == 1:
             # Extract the admin ID
-            extracted_admin_id = admin_id[0]
+            extracted_admin_id = admin_id['user_id']
 
             # Check if the user ID matches the extracted admin ID
             return self.user_id == extracted_admin_id
