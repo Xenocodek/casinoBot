@@ -3,8 +3,14 @@ from typing import List
 def format_number(num):
     """
     Format a number to one decimal place and return as a string.
+    If num is None, return None or handle it appropriately.
     """
 
+    # Check if num is None
+    if num is None:
+        # Handle None input; you could return None or raise an error
+        return None  # or raise ValueError("Input cannot be None")
+    
     # Format the number to one decimal place
     formatted_num = "{:.1f}".format(num)
 
