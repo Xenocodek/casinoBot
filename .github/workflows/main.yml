@@ -24,7 +24,7 @@ jobs:
       - name: Test with pytest
         run: |
           pip install pytest
-          pytest tests.py
+          pytest
 
       - name: Use Node 12
         uses: actions/setup-node@v1
