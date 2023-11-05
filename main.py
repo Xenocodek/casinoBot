@@ -8,6 +8,7 @@ from datetime import datetime
 from aiogram import Dispatcher
 
 from settings.config import Configuration
+from keyboards.ui_commands import set_bot_commands
 from database.db import DatabaseManager
 from handlers import (start_handler, 
                     profile_handler,
@@ -58,6 +59,8 @@ async def start():
                 currency_handler.router,
                 admin_handler.router,
                 other_handlers.router)
+    
+    await set_bot_commands(bot)
 
     try:
         # Start polling

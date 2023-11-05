@@ -1,5 +1,5 @@
 {
-    "main": "main",
+    "start": "start",
     "help": "help",
     "low_bonus": "low_bonus"
 }
