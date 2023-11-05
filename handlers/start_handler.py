@@ -1,8 +1,7 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery
+from aiogram.types import Message, CallbackQuery
 from aiogram.utils.markdown import hbold
 from aiogram.filters import CommandStart
-from aiogram.types import Message
 
 from lexicon.subloader import JSONFileManager
 from database.db import DatabaseManager
