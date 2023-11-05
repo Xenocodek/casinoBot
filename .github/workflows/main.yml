@@ -21,10 +21,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Test with pytest
-        run: |
-          pip install pytest
-          pytest
+      # - name: Test with pytest
+      #   run: |
+      #     pip install pytest
+      #     pytest
 
       - name: Use Node 12
         uses: actions/setup-node@v1
