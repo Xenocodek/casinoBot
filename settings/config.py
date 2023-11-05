@@ -20,7 +20,7 @@ class DatabaseConfig:
     """Database Config."""
 
     host: str = os.getenv("MYSQLHOST")
-    port = int(os.getenv("MYSQLPORT"))
+    port = int(os.getenv("MYSQLPORT", 22085))
     user: str = os.getenv("MYSQLUSER")
     password: str = os.getenv("MYSQLPASSWORD")
     database: str = os.getenv("MYSQL_DATABASE")
