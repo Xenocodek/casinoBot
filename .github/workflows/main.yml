@@ -21,20 +21,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # - name: Test with pytest
-      #   run: |
-      #     pip install pytest
-      #     pytest
+      - name: Test with pytest
+        run: |
+          pip install pytest
+          pytest
 
-      - name: Use Node 12
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12.x
+      # - name: Use Node 12
+      #   uses: actions/setup-node@v1
+      #   with:
+      #     node-version: 12.x
 
-      - name: Install Railway
-        run: npm i -g @railway/cli
+      # - name: Install Railway
+      #   run: npm i -g @railway/cli
 
-      - name: Deploy
-        run: railway up
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      # - name: Deploy
+      #   run: railway up
+      #   env:
+      #     RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
