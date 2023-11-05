@@ -60,6 +60,6 @@ def get_bet_keyboard(bet):
 
 
 # Creating inline keyboards
-start_keyboard = create_inline_kb(1, 'start_profile', 'game', 'currency', 'test')
-menu_keyboard = create_inline_kb(1, 'profile', 'game', 'currency', 'test')
+start_keyboard = create_inline_kb(1, 'start_profile', 'game', 'currency')
+menu_keyboard = create_inline_kb(1, 'profile', 'game', 'currency')
 back_main_menu_keyboard = create_inline_kb(1, 'back_main_menu')

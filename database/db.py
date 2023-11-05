@@ -268,15 +268,21 @@ class DatabaseManager:
         try:
             self.open_connection()  # Assumes this is an async call
             with self.connection.cursor() as cursor:  # Assumes self.connection supports async context manager
+                # Get the current time in the desired timezone
+                desired_timezone = pytz.timezone('Europe/Moscow')
+                time_updated = datetime.now(desired_timezone).strftime('%Y-%m-%d %H:%M:%S')
+
+                
                 # Execute the SQL query to update the balance
                 cursor.execute(
                     """
                     UPDATE balances
                     SET total = total + %s,
-                        wins = wins + %s
+                        wins = wins + %s,
+                        time_updated = %s
                     WHERE user_id = %s
                     """,
-                    (amount, wins, user_id),
+                    (amount, wins, time_updated, user_id),
                 )
                 # Commit the changes to the database
                 self.connection.commit()
