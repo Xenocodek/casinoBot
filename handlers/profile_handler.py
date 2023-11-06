@@ -3,13 +3,10 @@ from aiogram.types import CallbackQuery
 
 from lexicon.subloader import JSONFileManager
 from database.db import DatabaseManager
-from utils.currency import CurrencyConverter
 from utils.user_data import prepare_user_profile
 from keyboards.inlinekb import back_main_menu_keyboard
 
 router = Router()
-
-converter = CurrencyConverter()
 
 db = DatabaseManager()
 

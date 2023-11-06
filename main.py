@@ -14,6 +14,7 @@ from handlers import (start_handler,
                     profile_handler,
                     slot_game_handler,
                     currency_handler,
+                    weather_handler,
                     admin_handler, 
                     other_handlers)
 
@@ -57,6 +58,7 @@ async def start():
                 profile_handler.router,
                 slot_game_handler.router,
                 currency_handler.router,
+                weather_handler.router,
                 admin_handler.router,
                 other_handlers.router)
     

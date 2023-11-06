@@ -40,3 +40,10 @@ class ExchangeManager:
     """Exchange manager."""
 
     token: str = os.getenv("EXCHANGE_TOKEN")
+
+
+@dataclass
+class WeatherManager:
+    """Exchange manager."""
+
+    token: str = os.getenv("WEATHER_TOKEN")

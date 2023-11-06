@@ -1,10 +1,12 @@
 from aiogram.utils.markdown import hbold
 
 from lexicon.subloader import JSONFileManager
-from utils.currency import CurrencyConverter
+from utils.currency_get_api import CurrencyConverter
+from utils.weather_get_api import GetWeather
 from utils.slot_sup import format_number
 
 converter = CurrencyConverter()
+weather = GetWeather()
 
 file_manager = JSONFileManager()
 messages_data = file_manager.get_json("messages.json")
@@ -41,10 +43,12 @@ async def prepare_user_profile(user_data, first_name):
 
 
 async def prepare_curency():
-
+    """
+    Prepares the currency by getting the base currency exchange rates and creating a list of strings to be joined later.
+    """
     # Get base currency exchange rates
     base_currency_usd, base_currency_eur = messages_data['usd'], messages_data['eur']
-    usd, eur = await converter.get_multi_exchange(base_currency_usd, base_currency_eur)
+    usd, eur = converter.get_multi_exchange(base_currency_usd, base_currency_eur)
 
     # Create a list of strings to be joined later
     parts = [
@@ -54,3 +58,32 @@ async def prepare_curency():
 
     # Join all the parts into a single string and return it
     return ''.join(parts)
+
+
+async def prepare_weather():
+    """
+    Prepares the weather data and returns a formatted string with the weather information.
+    """
+    # Get the weather data
+    weather_data = weather.get_data_weather()
+
+    if weather_data:
+            # Extract the necessary information from the weather data
+            weather_name = weather_data.get("name", "N/A")
+            weather_description = weather_data["weather"][0]["description"].capitalize()
+            weather_temp = round(weather_data["main"]["temp"])
+            weather_wind_speed = weather_data["wind"]["speed"]
+
+            # Create a list of formatted strings with the weather information
+            parts = [
+                f"{hbold(messages_data['city_name'])}{weather_name}",
+                f"{hbold(messages_data['city_weather'])}{weather_description}",
+                f"{hbold(messages_data['city_temp'])}{weather_temp}°C",
+                f"{hbold(messages_data['speed_wind'])}{weather_wind_speed} м/с"
+            ]
+
+            # Join the formatted strings with newlines and return the result
+            return '\n'.join(parts)
+    
+    # If weather data is not available, return a message indicating that
+    return "Weather data is not available at the moment."

@@ -5,13 +5,10 @@ from aiogram.filters import CommandStart
 
 from lexicon.subloader import JSONFileManager
 from database.db import DatabaseManager
-from utils.currency import CurrencyConverter
 from keyboards.inlinekb import (start_keyboard,
                                 menu_keyboard)
 
 router = Router()
-
-converter = CurrencyConverter()
 
 db = DatabaseManager()
 

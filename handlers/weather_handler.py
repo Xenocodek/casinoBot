@@ -3,19 +3,19 @@ from aiogram.types import CallbackQuery
 from aiogram.exceptions import TelegramBadRequest
 
 from lexicon.subloader import JSONFileManager
-from utils.currency_get_api import CurrencyConverter
-from utils.user_data import prepare_curency
+from utils.weather_get_api import GetWeather
+from utils.user_data import prepare_weather
 from keyboards.inlinekb import back_main_menu_keyboard
 
 router = Router()
 
-converter = CurrencyConverter()
+weather = GetWeather()
 
 file_manager = JSONFileManager()
 messages_data = file_manager.get_json("messages.json")
 
 
-@router.callback_query(F.data == 'currency')
+@router.callback_query(F.data == 'weather_murino')
 async def show_currency(callback: CallbackQuery):
     """
     Show the currency callback query handler.
@@ -26,7 +26,7 @@ async def show_currency(callback: CallbackQuery):
     await callback.message.edit_text(messages_data['awaiting_req'])
 
     try:
-        answer_message = await prepare_curency()
+        answer_message = await prepare_weather()
 
         await callback.message.delete()
 

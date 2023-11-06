@@ -6,7 +6,6 @@ from aiogram.enums.dice_emoji import DiceEmoji
 
 from lexicon.subloader import JSONFileManager
 from database.db import DatabaseManager
-from utils.currency import CurrencyConverter
 from utils.slot_sup import (format_number,
                             get_str_combo, 
                             get_result)
@@ -14,8 +13,6 @@ from keyboards.inlinekb import (menu_keyboard,
                                 get_bet_keyboard)
 
 router = Router()
-
-converter = CurrencyConverter()
 
 db = DatabaseManager()
 
