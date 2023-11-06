@@ -279,7 +279,7 @@ class DatabaseManager:
                     UPDATE balances
                     SET total = total + %s,
                         wins = wins + %s,
-                        time_updated = %s
+                        last_updated = %s
                     WHERE user_id = %s
                     """,
                     (amount, wins, time_updated, user_id),
