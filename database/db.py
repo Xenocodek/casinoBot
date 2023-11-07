@@ -73,7 +73,7 @@ class DatabaseManager:
                 queries = [
                     """CREATE TABLE IF NOT EXISTS users (
                             id INT PRIMARY KEY AUTO_INCREMENT,
-                            user_id INT NOT NULL UNIQUE,
+                            user_id VARCHAR(64) NOT NULL UNIQUE,
                             username VARCHAR(64),
                             user_first_name VARCHAR(64),
                             user_last_name VARCHAR(64),
@@ -84,7 +84,7 @@ class DatabaseManager:
                     """CREATE TABLE IF NOT EXISTS balances (
                             id INT PRIMARY KEY AUTO_INCREMENT,
                             balance_id INT NOT NULL UNIQUE,
-                            user_id INT,
+                            user_id VARCHAR(64),
                             total REAL,
                             wins INT,
                             currency VARCHAR(3),
@@ -125,6 +125,8 @@ class DatabaseManager:
             self.open_connection()
             with self.connection.cursor() as cursor:
             
+                logging.info(f"{user_id}")
+                
                 cursor.execute(
                     "SELECT * FROM users WHERE user_id = %s", (user_id,))
                 user = cursor.fetchone()
@@ -145,6 +147,7 @@ class DatabaseManager:
                         """,
                         (user_id, username, user_first_name, user_last_name, created),
                     )
+
 
                     # Generate a unique balance_id and insert user's initial balance in the 'balances' table
                     balance_id = None
@@ -367,6 +370,29 @@ class DatabaseManager:
                 
                 # Commit the changes to the database
                 self.connection.commit()
+
+        except Exception as e:  # Replace with more specific exception handling if possible
+            logging.error(f"Error: {e}")
+        finally:
+            self.close_connection()  # Make sure this is an async call
+
+    
+    async def get_rating_total(self):
+
+        try:
+            self.open_connection()  # Make sure this is an async call
+            with self.connection.cursor() as cursor:  # Assumes self.connection supports async context manager
+                cursor.execute(
+                    """
+                    SELECT users.username, balances.total
+                    FROM balances
+                    JOIN users ON balances.user_id = users.user_id
+                    ORDER BY balances.total DESC
+                    LIMIT 10;
+                    """)
+                
+                rating = cursor.fetchall()
+                return rating
 
         except Exception as e:  # Replace with more specific exception handling if possible
             logging.error(f"Error: {e}")

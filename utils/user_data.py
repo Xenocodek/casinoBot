@@ -4,6 +4,7 @@ from lexicon.subloader import JSONFileManager
 from utils.currency_get_api import CurrencyConverter
 from utils.weather_get_api import GetWeather
 from utils.slot_sup import format_number
+from .slot_sup import format_number
 
 converter = CurrencyConverter()
 weather = GetWeather()
@@ -87,3 +88,18 @@ async def prepare_weather():
     
     # If weather data is not available, return a message indicating that
     return "Weather data is not available at the moment."
+
+
+async def prepare_rating_total(data):
+    
+    data_total = data
+
+    medals = ["🥇", "🥈", "🥉"] + [""] * (10 - 3)
+
+    message_text = "\n".join([
+        f"{index + 1}. {medals[index]}@{entry['username']} - имеет {format_number(entry['total'])} фишек" 
+        if entry['username'] else ""
+        for index, entry in enumerate(data_total[:10])
+    ])
+
+    return message_text

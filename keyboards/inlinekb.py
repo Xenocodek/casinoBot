@@ -60,8 +60,9 @@ def get_bet_keyboard(bet):
 
 
 # Creating inline keyboards
-start_keyboard = create_inline_kb(1, 'start_profile', 'slots', 'currency', 'weather_murino', 'help_button')
-menu_keyboard = create_inline_kb(1, 'profile', 'slots', 'currency', 'weather_murino', 'help_button')
+start_keyboard = create_inline_kb(1, 'start_profile', 'slots', 'rating', 'currency', 'weather_murino', 'help_button')
+menu_keyboard = create_inline_kb(1, 'profile', 'slots', 'rating', 'currency', 'weather_murino', 'help_button')
 slot_menu = create_inline_kb(1, 'game', 'rule', 'back_main_menu')
+rating_menu = create_inline_kb(1,'rating_chips', 'rating_wins', 'back_main_menu')
 help_slot_menu = create_inline_kb(1, 'back2slotmenu')
 back_main_menu_keyboard = create_inline_kb(1, 'back_main_menu')
