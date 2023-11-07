@@ -50,7 +50,7 @@ def get_bet_keyboard(bet):
     kb_builder.button(text=f"{keyboards_data['bet_double']}", callback_data="num_double")
     kb_builder.button(text=f"{keyboards_data['bet_max']}", callback_data="num_max")
     kb_builder.button(text=f"{keyboards_data['twist']}", callback_data="twist")
-    kb_builder.button(text=f"{keyboards_data['back']}", callback_data="back_main_menu")
+    kb_builder.button(text=f"{keyboards_data['back']}", callback_data="back2slotmenu")
 
     kb_builder.row()
     kb_builder.adjust(3, 3, 1)
@@ -60,6 +60,8 @@ def get_bet_keyboard(bet):
 
 
 # Creating inline keyboards
-start_keyboard = create_inline_kb(1, 'start_profile', 'game', 'currency', 'weather_murino', 'help_button')
-menu_keyboard = create_inline_kb(1, 'profile', 'game', 'currency', 'weather_murino', 'help_button')
+start_keyboard = create_inline_kb(1, 'start_profile', 'slots', 'currency', 'weather_murino', 'help_button')
+menu_keyboard = create_inline_kb(1, 'profile', 'slots', 'currency', 'weather_murino', 'help_button')
+slot_menu = create_inline_kb(1, 'game', 'rule', 'back_main_menu')
+help_slot_menu = create_inline_kb(1, 'back2slotmenu')
 back_main_menu_keyboard = create_inline_kb(1, 'back_main_menu')

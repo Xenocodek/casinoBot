@@ -1,4 +1,8 @@
 from typing import List
+from lexicon.subloader import JSONFileManager
+
+file_manager = JSONFileManager()
+messages_data = file_manager.get_json("messages.json")
 
 def format_number(num):
     """
@@ -58,34 +62,56 @@ async def get_result(dice_value, value):
     # Define the multipliers for each dice value
     multipliers = {
         1: 3,
-        22: 7,
+        22: 5,
         43: 10,
-        64: 15,
-        2: 1,
-        3: 1,
-        4: 1,
-        17: 1,
-        33: 1,
-        49: 1,
-        6: 1.5,
-        21: 1.5,
-        23: 1.5,
-        24: 1.5,
-        38: 1.5,
-        54: 1.5,
-        11: 1.75,
-        27: 1.75,
-        41: 1.75,
-        42: 1.75,
-        44: 1.75,
-        59: 1.75,
-        16: 2.5,
-        32: 2.5,
-        48: 2.5,
-        61: 2.5,
-        62: 2.5,
-        63: 2.5,
+        64: 20,
+        2: 0.25,
+        3: 0.25,
+        4: 0.25,
+        17: 0.25,
+        33: 0.25,
+        49: 0.25,
+        6: 0.5,
+        21: 0.5,
+        23: 0.5,
+        24: 0.5,
+        38: 0.5,
+        54: 0.5,
+        11: 1,
+        27: 1,
+        41: 1,
+        42: 1,
+        44: 1,
+        59: 1,
+        16: 1.5,
+        32: 1.5,
+        48: 1.5,
+        61: 1.5,
+        62: 1.5,
+        63: 1.5,
     }
 
     # Return the calculated result based on the dice value and initial value
     return value * multipliers.get(dice_value, 0)
+
+
+def prepare_rule():
+
+    parts = [
+        f"{messages_data['rule_message_01']}",
+        f"{messages_data['rule_message_02']}",
+        f"{messages_data['rule_message_03']}",
+        f"{messages_data['rule_message_04']}",
+        f"{messages_data['rule_message_05']}",
+        f"{messages_data['rule_message_06']}",
+        f"{messages_data['rule_message_07']}"
+        f"{messages_data['rule_message_08']}"
+        f"{messages_data['rule_message_09']}"
+        f"{messages_data['rule_message_10']}"
+        f"{messages_data['rule_message_11']}"
+        f"{messages_data['rule_message_12']}"
+    ]
+    
+    answer_message = ''.join(parts)
+
+    return answer_message

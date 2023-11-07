@@ -8,8 +8,11 @@ from lexicon.subloader import JSONFileManager
 from database.db import DatabaseManager
 from utils.slot_sup import (format_number,
                             get_str_combo, 
-                            get_result)
-from keyboards.inlinekb import (menu_keyboard, 
+                            get_result,
+                            prepare_rule)
+from keyboards.inlinekb import (menu_keyboard,
+                                slot_menu,
+                                help_slot_menu, 
                                 get_bet_keyboard)
 
 router = Router()
@@ -22,8 +25,35 @@ file_manager = JSONFileManager()
 commands_data = file_manager.get_json("commands.json")
 messages_data = file_manager.get_json("messages.json")
 
+
+@router.callback_query(F.data == 'slots')
+async def slot_game(callback: CallbackQuery):
+    await callback.answer()
+
+    answer_message = f"{hbold(messages_data['slot_menu_message'])}"
+
+    await callback.message.edit_text(answer_message, reply_markup=slot_menu)
+
+
+@router.callback_query(F.data == 'rule')
+async def slot_game(callback: CallbackQuery):
+    await callback.answer()
+
+    answer_message = prepare_rule()
+
+    await callback.message.edit_text(answer_message, reply_markup=help_slot_menu)
+
+
+@router.callback_query(F.data == 'back2slotmenu')
+async def back_menu(callback: CallbackQuery):
+    await callback.answer()
+
+    answer_message = f"{hbold(messages_data['slot_menu_message'])}"
+
+    await callback.message.edit_text(answer_message, reply_markup=slot_menu)
+
 @router.callback_query(F.data == 'game')
-async def game_slot(callback: CallbackQuery, ):
+async def start_game(callback: CallbackQuery):
     """
     Handles the callback query for the 'game' data.
     """
