@@ -78,7 +78,8 @@ class DatabaseManager:
                             user_first_name VARCHAR(64),
                             user_last_name VARCHAR(64),
                             registration_date TIMESTAMP,
-                            is_admin BOOLEAN DEFAULT FALSE
+                            is_admin BOOLEAN DEFAULT FALSE,
+                            default_language VARCHAR(2) DEFAULT 'RU'
                     );""",
                     """CREATE TABLE IF NOT EXISTS balances (
                             id INT PRIMARY KEY AUTO_INCREMENT,
