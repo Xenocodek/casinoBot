@@ -28,28 +28,46 @@ messages_data = file_manager.get_json("messages.json")
 
 @router.callback_query(F.data == 'slots')
 async def slot_game(callback: CallbackQuery):
+    """
+    An asynchronous function that handles a callback query for the 'rule' data.
+    """
+    # Answer the callback query to provide immediate feedback to the user
     await callback.answer()
 
+    # Generate the answer message using the 'slot_menu_message' from the 'messages_data' dictionary
     answer_message = f"{hbold(messages_data['slot_menu_message'])}"
 
+    # Update the text of the callback message with the answer message and the slot menu reply markup
     await callback.message.edit_text(answer_message, reply_markup=slot_menu)
 
 
 @router.callback_query(F.data == 'rule')
 async def slot_game(callback: CallbackQuery):
+    """
+    A callback function for handling a callback query with data 'rule'.
+    """
+    # Answer the callback query
     await callback.answer()
 
+    # Generate the answer message
     answer_message = prepare_rule()
 
+    # Edit the message with the answer
     await callback.message.edit_text(answer_message, reply_markup=help_slot_menu)
 
 
 @router.callback_query(F.data == 'back2slotmenu')
 async def back_menu(callback: CallbackQuery):
+    """
+    A callback function that handles the callback query with data 'back2slotmenu'.
+    """
+    # Answer the callback query to close the loading animation on the user's side
     await callback.answer()
 
+    # Generate the answer message with the formatted slot menu message
     answer_message = f"{hbold(messages_data['slot_menu_message'])}"
 
+    # Edit the message with the answer message and the slot menu reply markup
     await callback.message.edit_text(answer_message, reply_markup=slot_menu)
 
 @router.callback_query(F.data == 'game')
