@@ -45,7 +45,7 @@ async def slot_game(callback: CallbackQuery):
     data = await db.get_rating_total()
 
     # Prepare the rating total message
-    answer_message = await prepare_rating_total(data)
+    answer_message = prepare_rating_total(data)
 
     # Delete the original message
     await callback.message.delete()
@@ -72,7 +72,7 @@ async def slot_game(callback: CallbackQuery):
     data = await db.get_rating_wins()
 
     # Prepare the answer message using the rating wins data
-    answer_message = await prepare_rating_wins(data)
+    answer_message = prepare_rating_wins(data)
 
     # Delete the original message that triggered the callback query
     await callback.message.delete()

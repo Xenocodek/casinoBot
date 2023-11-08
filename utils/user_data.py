@@ -90,31 +90,41 @@ async def prepare_weather():
     return "Weather data is not available at the moment."
 
 
-async def prepare_rating_total(data):
-    
+def prepare_rating_total(data):
+    """
+    Generates a formatted message text with the top 10 users' ratings and their total number of chips.
+    """
     data_total = data
 
+    # Define the medal emojis for the top 3 users and empty strings for the rest
     medals = ["🥇", "🥈", "🥉"] + [""] * (10 - 3)
 
+    # Generate the formatted message text by iterating over the first 10 entries in the data list
     message_text = "\n".join([
         f"{index + 1}. {medals[index]}@{entry['username']} - имеет {format_number(entry['total'])} фишек" 
         if entry['username'] else ""
         for index, entry in enumerate(data_total[:10])
     ])
 
+    # Return the generated message text
     return message_text
 
 
-async def prepare_rating_wins(data):
-    
+def prepare_rating_wins(data):
+    """
+    Prepares the rating of wins based on the given data.
+    """
     data_total = data
 
+    # Define the medals to be displayed
     medals = ["🥇", "🥈", "🥉"] + [""] * (10 - 3)
 
+    # Generate the message text by iterating over the top 10 entries in the data
     message_text = "\n".join([
         f"{index + 1}. {medals[index]}@{entry['username']} - имеет {entry['wins']} побед" 
         if entry['username'] else ""
         for index, entry in enumerate(data_total[:10])
     ])
 
+    # Return the formatted message
     return message_text
