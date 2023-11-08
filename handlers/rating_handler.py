@@ -20,47 +20,68 @@ messages_data = file_manager.get_json("messages.json")
 
 @router.callback_query(F.data == 'rating')
 async def slot_game(callback: CallbackQuery):
+    """
+    A callback function for handling rating data.
+    """
+    # Send a callback answer to acknowledge the query
     await callback.answer()
 
+    # Create a message with the rating data
     answer_message = f"{hbold(messages_data['rating'])}"
 
+    # Edit the message text with the rating data and show the rating menu
     await callback.message.edit_text(answer_message, reply_markup=rating_menu)
 
 
 @router.callback_query(F.data == 'rating_chips')
 async def slot_game(callback: CallbackQuery):
+    """
+    Callback function for handling rating chips.
+    """
+    # Send an answer to the callback query
     await callback.answer()
 
+    # Retrieve the rating total from the database
     data = await db.get_rating_total()
 
+    # Prepare the rating total message
     answer_message = await prepare_rating_total(data)
 
+    # Delete the original message
     await callback.message.delete()
 
+    # Send the rating total message as a response
     await callback.message.answer(answer_message)
     
+    # Prepare a message for selecting a command
     answer_message = f"{messages_data['select_command']}"
 
+    # Send the command selection message with a menu keyboard
     await callback.message.answer(answer_message, reply_markup=menu_keyboard)
 
 
 @router.callback_query(F.data == 'rating_wins')
 async def slot_game(callback: CallbackQuery):
+    """
+    A function that handles the callback query for the 'rating_wins' data. 
+    """
+    # Answer the callback query to let Telegram know that the button press was received
     await callback.answer()
 
+    # Get the rating wins data from the database
     data = await db.get_rating_wins()
 
+    # Prepare the answer message using the rating wins data
     answer_message = await prepare_rating_wins(data)
 
+    # Delete the original message that triggered the callback query
     await callback.message.delete()
 
+    # Send the answer message to the user
     await callback.message.answer(answer_message)
     
+    # Send a follow-up message with a prompt for the user
     answer_message = f"{messages_data['select_command']}"
 
+    # Send the follow-up message with a custom keyboard
     await callback.message.answer(answer_message, reply_markup=menu_keyboard)
-
-
-@router.callback_query(F.data == 'rating_wins')
-async def slot_game(callback: CallbackQuery):
-    await callback.answer()
