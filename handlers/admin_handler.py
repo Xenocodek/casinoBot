@@ -15,10 +15,16 @@ router.callback_query.filter(IsAdmin())
 
 @router.message(Command("admin"))
 async def start(message: Message) -> None:
+    """
+    A handler function for the "admin" command. It takes a Message object as a parameter and does not return anything.
+    """
     await message.answer("Вы админ!", reply_markup=start_admin_keyboard)
 
 @router.callback_query(F.data == 'user_list')
 async def start_user_profile(callback: CallbackQuery):
+    # Send a callback answer to the user
     await callback.answer()
+    # Create a message to send to the user
     answer_message = "abiba"
+    # Send the message to the user
     await callback.message.answer(answer_message)

@@ -378,10 +378,14 @@ class DatabaseManager:
 
     
     async def get_rating_total(self):
-
+        """
+        Retrieves the total rating of the users based on their balances.
+        """
         try:
             self.open_connection()  # Make sure this is an async call
             with self.connection.cursor() as cursor:  # Assumes self.connection supports async context manager
+
+                # Execute the SQL query to retrieve the username and total balance of users
                 cursor.execute(
                     """
                     SELECT users.username, balances.total
@@ -391,6 +395,7 @@ class DatabaseManager:
                     LIMIT 10;
                     """)
                 
+                # Fetch all the results from the query
                 rating = cursor.fetchall()
                 return rating
 
@@ -401,7 +406,9 @@ class DatabaseManager:
 
     
     async def get_rating_wins(self):
-
+        """
+        Retrieves the top 10 users and their wins from the database.
+        """
         try:
             self.open_connection()  # Make sure this is an async call
             with self.connection.cursor() as cursor:  # Assumes self.connection supports async context manager
@@ -414,6 +421,7 @@ class DatabaseManager:
                     LIMIT 10;
                     """)
                 
+                # Fetch all the results from the query
                 rating = cursor.fetchall()
                 return rating
 
