@@ -7,7 +7,8 @@ from lexicon.subloader import JSONFileManager
 from database.db import DatabaseManager
 from keyboards.inlinekb import (menu_keyboard,
                                 rating_menu)
-from utils.user_data import prepare_rating_total
+from utils.user_data import (prepare_rating_total, 
+                            prepare_rating_wins)
 
 router = Router()
 
@@ -33,6 +34,25 @@ async def slot_game(callback: CallbackQuery):
     data = await db.get_rating_total()
 
     answer_message = await prepare_rating_total(data)
+
+    await callback.message.delete()
+
+    await callback.message.answer(answer_message)
+    
+    answer_message = f"{messages_data['select_command']}"
+
+    await callback.message.answer(answer_message, reply_markup=menu_keyboard)
+
+
+@router.callback_query(F.data == 'rating_wins')
+async def slot_game(callback: CallbackQuery):
+    await callback.answer()
+
+    data = await db.get_rating_wins()
+
+    answer_message = await prepare_rating_wins(data)
+
+    await callback.message.delete()
 
     await callback.message.answer(answer_message)
     

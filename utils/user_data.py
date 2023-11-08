@@ -103,3 +103,18 @@ async def prepare_rating_total(data):
     ])
 
     return message_text
+
+
+async def prepare_rating_wins(data):
+    
+    data_total = data
+
+    medals = ["🥇", "🥈", "🥉"] + [""] * (10 - 3)
+
+    message_text = "\n".join([
+        f"{index + 1}. {medals[index]}@{entry['username']} - имеет {entry['wins']} побед" 
+        if entry['username'] else ""
+        for index, entry in enumerate(data_total[:10])
+    ])
+
+    return message_text

@@ -398,3 +398,26 @@ class DatabaseManager:
             logging.error(f"Error: {e}")
         finally:
             self.close_connection()  # Make sure this is an async call
+
+    
+    async def get_rating_wins(self):
+
+        try:
+            self.open_connection()  # Make sure this is an async call
+            with self.connection.cursor() as cursor:  # Assumes self.connection supports async context manager
+                cursor.execute(
+                    """
+                    SELECT users.username, balances.wins
+                    FROM balances
+                    JOIN users ON balances.user_id = users.user_id
+                    ORDER BY balances.wins DESC
+                    LIMIT 10;
+                    """)
+                
+                rating = cursor.fetchall()
+                return rating
+
+        except Exception as e:  # Replace with more specific exception handling if possible
+            logging.error(f"Error: {e}")
+        finally:
+            self.close_connection()  # Make sure this is an async call
