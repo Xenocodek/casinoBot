@@ -96,7 +96,10 @@ async def get_result(dice_value, value):
 
 
 def prepare_rule():
-
+    """
+    Prepare and return a rule message by concatenating multiple rule messages.
+    """
+    # Create a list of rule messages
     parts = [
         f"{messages_data['rule_message_01']}",
         f"{messages_data['rule_message_02']}",
@@ -112,6 +115,7 @@ def prepare_rule():
         f"{messages_data['rule_message_12']}"
     ]
     
+    # Concatenate the rule messages into a single string
     answer_message = ''.join(parts)
 
     return answer_message
