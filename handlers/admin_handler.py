@@ -18,6 +18,7 @@ async def start(message: Message) -> None:
     """
     A handler function for the "admin" command. It takes a Message object as a parameter and does not return anything.
     """
+    # Reply to the user with a message
     await message.answer("Вы админ!", reply_markup=start_admin_keyboard)
 
 @router.callback_query(F.data == 'user_list')
