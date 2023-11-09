@@ -1,5 +1,5 @@
 # Virtual Casino Bot
-![logo_casik (1)](https://github.com/Xenocodek/casinoBot/assets/39853765/91677a19-bd3d-4468-8d69-0ec140c746ed)
+![logo_casik (1)](https://github.com/Xenocodek/casinoBot/assets/39853765/46fe3c9b-805d-4984-9c61-aae953874b67)
 
 Казино Telegram BOT представляет собой виртуальное казино, доступное прямо в вашем любимом мессенджере. 
 Он предоставляет выбор азартных игр, включая слоты и многое другое, позволяя 
