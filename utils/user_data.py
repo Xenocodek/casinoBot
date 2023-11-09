@@ -22,16 +22,13 @@ async def prepare_user_profile(user_data, first_name):
         # Unpack user_data into variables
         user_id, username, amount, wins = (user_data['user_id'], user_data['username'], user_data['total'], user_data['wins'])
 
-        # If username is None, set it to 'None'
-        if username is None:
-            username = messages_data['username_null']
-
         # Create a list of strings to be joined later
         parts = [
             f"{messages_data['greetings']}{hbold(first_name)}\n\n",
             f"{hbold(messages_data['user_profile'])}\n",
             f"{messages_data['user_id']}{hbold(user_id)}\n",
-            f"{messages_data['user_username']}@{hbold(username)}\n",
+            # f"{messages_data['user_username']}@{hbold(username)}\n",
+            f"{messages_data['user_username']}@{hbold(username)}\n" if username != 'unknown' else f"{messages_data['user_username']}{hbold(username)}\n",
             f"{messages_data['wins']}{hbold(wins)}\n\n",
             f"{hbold(messages_data['user_balance'])}\n",
             f"{messages_data['user_chips']}{hbold(format_number(amount))}\n"
@@ -101,7 +98,8 @@ def prepare_rating_total(data):
 
     # Generate the formatted message text by iterating over the first 10 entries in the data list
     message_text = "\n".join([
-        f"{index + 1}. {medals[index]}@{entry['username']} - имеет {format_number(entry['total'])} фишек" 
+        # f"{index + 1}. {medals[index]}@{entry['username']} - имеет {format_number(entry['total'])} фишек"
+        f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {format_number(entry['total'])} фишек"
         if entry['username'] else ""
         for index, entry in enumerate(data_total[:10])
     ])
@@ -121,7 +119,8 @@ def prepare_rating_wins(data):
 
     # Generate the message text by iterating over the top 10 entries in the data
     message_text = "\n".join([
-        f"{index + 1}. {medals[index]}@{entry['username']} - имеет {entry['wins']} побед" 
+        # f"{index + 1}. {medals[index]}@{entry['username']} - имеет {entry['wins']} побед"
+        f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {entry['wins']} побед"
         if entry['username'] else ""
         for index, entry in enumerate(data_total[:10])
     ])

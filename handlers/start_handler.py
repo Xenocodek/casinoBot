@@ -27,7 +27,7 @@ async def cmd_start(message: Message):
     # Extract user information from the message
     user = message.from_user
     user_id = user.id
-    username = user.username.lower() if user.username else " unknown"
+    username = user.username.lower() if user.username else "unknown"
     first_name = user.first_name
     last_name = user.last_name
 
