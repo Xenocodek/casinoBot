@@ -31,7 +31,7 @@ async def prepare_user_profile(user_data, first_name):
             f"{messages_data['greetings']}{hbold(first_name)}\n\n",
             f"{hbold(messages_data['user_profile'])}\n",
             f"{messages_data['user_id']}{hbold(user_id)}\n",
-            f"{messages_data['user_username']}@{hbold(username)}\n",
+            f"{messages_data['user_username']}{hbold(username)}\n",
             f"{messages_data['wins']}{hbold(wins)}\n\n",
             f"{hbold(messages_data['user_balance'])}\n",
             f"{messages_data['user_chips']}{hbold(format_number(amount))}\n"
