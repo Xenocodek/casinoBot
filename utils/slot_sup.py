@@ -13,7 +13,7 @@ def format_number(num):
     # Check if num is None
     if num is None:
         # Handle None input; you could return None or raise an error
-        return None  # or raise ValueError("Input cannot be None")
+        return None
     
     # Format the number to one decimal place
     formatted_num = "{:.1f}".format(num)
@@ -31,6 +31,9 @@ def get_str_combo(dice_value: int) -> List[str]:
     """
     Get the string combination for a given dice value.
     """
+
+    if not (1 <= dice_value <= 64):
+        raise ValueError("dice_value должен быть числом от 1 до 64.")
 
     # Define the possible values for the string combinations
     values = ["BAR", "GRAPES", "LEMON", "SEVEN"]
@@ -58,6 +61,9 @@ def get_result(dice_value, value):
     """
     Calculate the result of a dice roll based on the dice value and value.
     """
+
+    if not isinstance(dice_value, int) or not isinstance(value, (int, float)):
+        raise TypeError("dice_value должен быть целым числом, а value должен быть числом (целым или с плавающей точкой).")
 
     # Define the multipliers for each dice value
     multipliers = {
