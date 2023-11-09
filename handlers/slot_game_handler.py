@@ -186,11 +186,11 @@ async def twist_slot(callback: CallbackQuery):
         await asyncio.sleep(2.0)
 
         # Get the combinations and format the result
-        combinations = await get_str_combo(score_change)
+        combinations = get_str_combo(score_change)
         formatted_combination = ' '.join(combinations)
 
         # Get the result of the slot game
-        slot_result = await get_result(score_change,  user_value)
+        slot_result = get_result(score_change,  user_value)
 
         if slot_result == 0:
             # Change the user's balance and Log the transaction

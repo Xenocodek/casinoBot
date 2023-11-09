@@ -27,7 +27,7 @@ def format_number(num):
     return formatted_num
     
     
-async def get_str_combo(dice_value: int) -> List[str]:
+def get_str_combo(dice_value: int) -> List[str]:
     """
     Get the string combination for a given dice value.
     """
@@ -54,7 +54,7 @@ async def get_str_combo(dice_value: int) -> List[str]:
     return result
 
 
-async def get_result(dice_value, value):
+def get_result(dice_value, value):
     """
     Calculate the result of a dice roll based on the dice value and value.
     """
