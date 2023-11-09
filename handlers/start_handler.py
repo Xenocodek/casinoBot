@@ -24,14 +24,18 @@ async def cmd_start(message: Message):
     """
     Handles the start command received in a message.
     """
-    
     # Extract user information from the message
     user = message.from_user
-    user_id, username, first_name, last_name = user.id, user.username.lower(), user.first_name, user.last_name
+    user_id = user.id
+    username = user.username.lower() if user.username else "unknown"
+    first_name = user.first_name
+    last_name = user.last_name
 
     # Compose the response message
-    answer_message = f"{messages_data['greetings']}{hbold(first_name)}\n\n"
-    answer_message = answer_message + f"{messages_data['select_command']}"
+    answer_message = (
+        f"{messages_data['greetings']}{hbold(first_name)}\n\n"
+        f"{messages_data['select_command']}"
+    )
 
     # Send the composed message back to the user with a start keyboard
     await message.answer(answer_message, reply_markup=start_keyboard)
