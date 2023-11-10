@@ -84,41 +84,73 @@ def prepare_weather():
     return '\n'.join(parts)
 
 
-def prepare_rating_total(data):
+def prepare_rating(data, rating_type):
     """
-    Generates a formatted message text with the top 10 users' ratings and their total number of chips.
+    Generates a formatted message text based on the given data and rating type.
     """
-    data_total = data
-
-    # Define the medal emojis for the top 3 users and empty strings for the rest
-    medals = ["🥇", "🥈", "🥉"] + [""] * (10 - 3)
-
-    # Generate the formatted message text by iterating over the first 10 entries in the data list
-    message_text = "\n".join([
-        f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {format_number(entry['total'])} фишек"
-        if entry['username'] else ""
-        for index, entry in enumerate(data_total[:10])
-    ])
-
-    # Return the generated message text
-    return message_text
-
-
-def prepare_rating_wins(data):
-    """
-    Prepares the rating of wins based on the given data.
-    """
-    data_total = data
+    data_type = data
 
     # Define the medals to be displayed
     medals = ["🥇", "🥈", "🥉"] + [""] * (10 - 3)
 
-    # Generate the message text by iterating over the top 10 entries in the data
-    message_text = "\n".join([
-        f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {entry['wins']} побед"
-        if entry['username'] else ""
-        for index, entry in enumerate(data_total[:10])
-    ])
+    if rating_type == 'chips':
+        # Generate the formatted message text for the chips rating
+        rating_title = messages_data['rating_total']
+        message_text = f"{hbold(rating_title)}\n\n" + "\n".join([
+            f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {format_number(entry['total'])} фишек"
+            if entry['username'] else ""
+            for index, entry in enumerate(data_type[:10])
+        ])
+    elif rating_type == 'wins':
+        # Generate the formatted message text for the wins rating
+        rating_title = messages_data['rating_wins']
+        message_text = f"{hbold(rating_title)}\n\n" + "\n".join([
+            f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {entry['wins']} побед"
+            if entry['username'] else ""
+            for index, entry in enumerate(data_type[:10])
+        ])
+    else:
+        message_text = "Unsupported rating type"
 
-    # Return the formatted message
+    # Return the formatted message text
     return message_text
+
+
+# def prepare_rating_total(data):
+#     """
+#     Generates a formatted message text with the top 10 users' ratings and their total number of chips.
+#     """
+#     data_total = data
+
+#     # Define the medal emojis for the top 3 users and empty strings for the rest
+#     medals = ["🥇", "🥈", "🥉"] + [""] * (10 - 3)
+
+#     # Generate the formatted message text by iterating over the first 10 entries in the data list
+#     message_text = "\n".join([
+#         f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {format_number(entry['total'])} фишек"
+#         if entry['username'] else ""
+#         for index, entry in enumerate(data_total[:10])
+#     ])
+
+#     # Return the generated message text
+#     return message_text
+
+
+# def prepare_rating_wins(data):
+#     """
+#     Prepares the rating of wins based on the given data.
+#     """
+#     data_total = data
+
+#     # Define the medals to be displayed
+#     medals = ["🥇", "🥈", "🥉"] + [""] * (10 - 3)
+
+#     # Generate the message text by iterating over the top 10 entries in the data
+#     message_text = "\n".join([
+#         f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {entry['wins']} побед"
+#         if entry['username'] else ""
+#         for index, entry in enumerate(data_total[:10])
+#     ])
+
+#     # Return the formatted message
+#     return message_text
