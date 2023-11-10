@@ -371,6 +371,9 @@ class DatabaseManager:
                 # Commit the changes to the database
                 self.connection.commit()
 
+                # Log the transaction
+                logging.info(f"Transaction Daily Bonus")
+
         except Exception as e:  # Replace with more specific exception handling if possible
             logging.error(f"Error: {e}")
         finally:
