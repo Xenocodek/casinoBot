@@ -57,33 +57,31 @@ async def prepare_curency():
     return ''.join(parts)
 
 
-async def prepare_weather():
+def prepare_weather():
     """
     Prepares the weather data and returns a formatted string with the weather information.
     """
     # Get the weather data
     weather_data = weather.get_data_weather()
 
-    if weather_data:
-            # Extract the necessary information from the weather data
-            weather_name = weather_data.get("name", "N/A")
-            weather_description = weather_data["weather"][0]["description"].capitalize()
-            weather_temp = round(weather_data["main"]["temp"])
-            weather_wind_speed = weather_data["wind"]["speed"]
+    if not weather_data:
+        return "Weather data is not available at the moment."
 
-            # Create a list of formatted strings with the weather information
-            parts = [
-                f"{hbold(messages_data['city_name'])}{weather_name}",
-                f"{hbold(messages_data['city_weather'])}{weather_description}",
-                f"{hbold(messages_data['city_temp'])}{weather_temp}°C",
-                f"{hbold(messages_data['speed_wind'])}{weather_wind_speed} м/с"
-            ]
+    weather_name = weather_data.get("name", "N/A")
+    weather_description = weather_data.get("weather", [{}])[0].get("description", "N/A").capitalize()
+    weather_temp = weather_data.get("main", {}).get("temp", "N/A")
+    weather_wind_speed = weather_data.get("wind", {}).get("speed", "N/A")
+
+    # Create a list of formatted strings with the weather information
+    parts = [
+        f"{hbold(messages_data['city_name'])}{weather_name}",
+        f"{hbold(messages_data['city_weather'])}{weather_description}",
+        f"{hbold(messages_data['city_temp'])}{weather_temp}°C",
+        f"{hbold(messages_data['speed_wind'])}{weather_wind_speed} м/с"
+    ]
 
             # Join the formatted strings with newlines and return the result
-            return '\n'.join(parts)
-    
-    # If weather data is not available, return a message indicating that
-    return "Weather data is not available at the moment."
+    return '\n'.join(parts)
 
 
 def prepare_rating_total(data):
