@@ -350,10 +350,10 @@ class DatabaseManager:
                 # Insert a new transaction record for each user with a balance less than 1000
                 cursor.execute(
                     """
-                    INSERT INTO transactions (user_id, transaction_type, amount, last_updated)
-                    SELECT user_id, %s, %s, %s
+                    INSERT INTO transactions (balance_id, transaction_type, amount, last_updated)
+                    SELECT balances.balance_id, %s, %s, %s
                     FROM balances
-                    WHERE total < 1000;
+                    WHERE balances.total < 1000;
                     """,
                     (transaction_type, bonus_amount, time_updated),
                 )
