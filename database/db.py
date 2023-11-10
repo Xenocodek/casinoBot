@@ -362,7 +362,7 @@ class DatabaseManager:
                 cursor.execute(
                     """
                     UPDATE balances
-                    SET total = total + %s, last_updated = %s
+                    SET total = %s, last_updated = %s
                     WHERE total < 1000;
                     """,
                     (bonus_amount, time_updated),

@@ -50,7 +50,7 @@ async def start():
     # Initialize a scheduler
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
     desired_timezone = pytz.timezone('Europe/Moscow')
-    scheduler.add_job(db.give_daily_bonus, 'cron', hour=00, minute=1, start_date = datetime.now(desired_timezone))
+    scheduler.add_job(db.give_daily_bonus, 'cron', hour=4, minute=10, start_date = datetime.now(desired_timezone))
     scheduler.start()
 
     # Include the router
