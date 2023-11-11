@@ -26,7 +26,7 @@ async def show_currency(callback: CallbackQuery):
     await callback.message.edit_text(messages_data['awaiting_req'])
 
     try:
-        answer_message = await prepare_weather()
+        answer_message = prepare_weather()
 
         await callback.message.delete()
 

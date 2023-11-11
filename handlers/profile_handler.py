@@ -38,7 +38,7 @@ async def start_user_profile(callback: CallbackQuery):
     user_data = await db.get_user_data(user_id) if user_id else None
 
     # Prepares a user profile message using user data and first name
-    answer_message = await prepare_user_profile(user_data, first_name)
+    answer_message = prepare_user_profile(user_data, first_name)
 
     # Sends the prepared user profile message as a response to the callback
     await callback.message.answer(answer_message, reply_markup=back_main_menu_keyboard)
@@ -61,7 +61,7 @@ async def user_profile(callback: CallbackQuery):
     user_data = await db.get_user_data(user_id) if user_id else None
 
     # Prepares a user profile message using user data and first name
-    answer_message = await prepare_user_profile(user_data, first_name)
+    answer_message = prepare_user_profile(user_data, first_name)
 
     # Edits the original message triggered by the callback with the prepared user profile message
     await callback.message.edit_text(answer_message, reply_markup=back_main_menu_keyboard)

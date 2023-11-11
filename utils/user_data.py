@@ -12,7 +12,7 @@ weather = GetWeather()
 file_manager = JSONFileManager()
 messages_data = file_manager.get_json("messages.json")
 
-async def prepare_user_profile(user_data, first_name):
+def prepare_user_profile(user_data, first_name):
     """
     Generates the user profile information based on the provided user data and first name.
     """
@@ -39,7 +39,7 @@ async def prepare_user_profile(user_data, first_name):
     return None
 
 
-async def prepare_curency():
+def prepare_curency():
     """
     Prepares the currency by getting the base currency exchange rates and creating a list of strings to be joined later.
     """
@@ -57,70 +57,60 @@ async def prepare_curency():
     return ''.join(parts)
 
 
-async def prepare_weather():
+def prepare_weather():
     """
     Prepares the weather data and returns a formatted string with the weather information.
     """
     # Get the weather data
     weather_data = weather.get_data_weather()
 
-    if weather_data:
-            # Extract the necessary information from the weather data
-            weather_name = weather_data.get("name", "N/A")
-            weather_description = weather_data["weather"][0]["description"].capitalize()
-            weather_temp = round(weather_data["main"]["temp"])
-            weather_wind_speed = weather_data["wind"]["speed"]
+    if not weather_data:
+        return "Weather data is not available at the moment."
 
-            # Create a list of formatted strings with the weather information
-            parts = [
-                f"{hbold(messages_data['city_name'])}{weather_name}",
-                f"{hbold(messages_data['city_weather'])}{weather_description}",
-                f"{hbold(messages_data['city_temp'])}{weather_temp}°C",
-                f"{hbold(messages_data['speed_wind'])}{weather_wind_speed} м/с"
-            ]
+    weather_name = weather_data.get("name", "N/A")
+    weather_description = weather_data.get("weather", [{}])[0].get("description", "N/A").capitalize()
+    weather_temp = weather_data.get("main", {}).get("temp", "N/A")
+    weather_wind_speed = weather_data.get("wind", {}).get("speed", "N/A")
+
+    # Create a list of formatted strings with the weather information
+    parts = [
+        f"{hbold(messages_data['city_name'])}{weather_name}",
+        f"{hbold(messages_data['city_weather'])}{weather_description}",
+        f"{hbold(messages_data['city_temp'])}{weather_temp}°C",
+        f"{hbold(messages_data['speed_wind'])}{weather_wind_speed} м/с"
+    ]
 
             # Join the formatted strings with newlines and return the result
-            return '\n'.join(parts)
-    
-    # If weather data is not available, return a message indicating that
-    return "Weather data is not available at the moment."
+    return '\n'.join(parts)
 
 
-def prepare_rating_total(data):
+def prepare_rating(data, rating_type):
     """
-    Generates a formatted message text with the top 10 users' ratings and their total number of chips.
+    Generates a formatted message text based on the given data and rating type.
     """
-    data_total = data
-
-    # Define the medal emojis for the top 3 users and empty strings for the rest
-    medals = ["🥇", "🥈", "🥉"] + [""] * (10 - 3)
-
-    # Generate the formatted message text by iterating over the first 10 entries in the data list
-    message_text = "\n".join([
-        f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {format_number(entry['total'])} фишек"
-        if entry['username'] else ""
-        for index, entry in enumerate(data_total[:10])
-    ])
-
-    # Return the generated message text
-    return message_text
-
-
-def prepare_rating_wins(data):
-    """
-    Prepares the rating of wins based on the given data.
-    """
-    data_total = data
+    data_type = data
 
     # Define the medals to be displayed
     medals = ["🥇", "🥈", "🥉"] + [""] * (10 - 3)
 
-    # Generate the message text by iterating over the top 10 entries in the data
-    message_text = "\n".join([
-        f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {entry['wins']} побед"
-        if entry['username'] else ""
-        for index, entry in enumerate(data_total[:10])
-    ])
+    if rating_type == 'chips':
+        # Generate the formatted message text for the chips rating
+        rating_title = messages_data['rating_total']
+        message_text = f"{hbold(rating_title)}\n\n" + "\n".join([
+            f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {format_number(entry['total'])} фишек"
+            if entry['username'] else ""
+            for index, entry in enumerate(data_type[:10])
+        ])
+    elif rating_type == 'wins':
+        # Generate the formatted message text for the wins rating
+        rating_title = messages_data['rating_wins']
+        message_text = f"{hbold(rating_title)}\n\n" + "\n".join([
+            f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {entry['wins']} побед"
+            if entry['username'] else ""
+            for index, entry in enumerate(data_type[:10])
+        ])
+    else:
+        message_text = "Unsupported rating type"
 
-    # Return the formatted message
+    # Return the formatted message text
     return message_text
