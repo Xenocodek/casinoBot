@@ -12,7 +12,7 @@ weather = GetWeather()
 file_manager = JSONFileManager()
 messages_data = file_manager.get_json("messages.json")
 
-async def prepare_user_profile(user_data, first_name):
+def prepare_user_profile(user_data, first_name):
     """
     Generates the user profile information based on the provided user data and first name.
     """
@@ -39,7 +39,7 @@ async def prepare_user_profile(user_data, first_name):
     return None
 
 
-async def prepare_curency():
+def prepare_curency():
     """
     Prepares the currency by getting the base currency exchange rates and creating a list of strings to be joined later.
     """
