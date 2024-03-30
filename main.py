@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import pytz
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime
@@ -49,8 +48,7 @@ async def start():
 
     # Initialize a scheduler
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
-    desired_timezone = pytz.timezone('Europe/Moscow')
-    scheduler.add_job(db.give_daily_bonus, 'cron', hour=00, minute=1, start_date = datetime.now(desired_timezone))
+    scheduler.add_job(db.give_daily_bonus, 'cron', hour=00, minute=1, start_date = datetime.now())
     scheduler.start()
 
     # Include the router

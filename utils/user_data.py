@@ -20,7 +20,11 @@ def prepare_user_profile(user_data, first_name):
     # Check if user_data is not empty
     if user_data:
         # Unpack user_data into variables
-        user_id, username, amount, wins = (user_data['user_id'], user_data['username'], user_data['total'], user_data['wins'])
+        # user_id, username, amount, wins = (user_data['user_id'], user_data['username'], user_data['total'], user_data['wins'])
+        user_id = user_data[0]
+        username = user_data[1]
+        amount = user_data[2]
+        wins = user_data[3]
 
         # Create a list of strings to be joined later
         parts = [
@@ -97,16 +101,16 @@ def prepare_rating(data, rating_type):
         # Generate the formatted message text for the chips rating
         rating_title = messages_data['rating_total']
         message_text = f"{hbold(rating_title)}\n\n" + "\n".join([
-            f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {format_number(entry['total'])} фишек"
-            if entry['username'] else ""
+            f"{index + 1}. {medals[index]}{'@' if entry[0] != 'unknown' else ''}{entry[0]} - имеет {format_number(entry[1])} фишек"
+            if entry[0] else ""
             for index, entry in enumerate(data_type[:10])
         ])
     elif rating_type == 'wins':
         # Generate the formatted message text for the wins rating
         rating_title = messages_data['rating_wins']
         message_text = f"{hbold(rating_title)}\n\n" + "\n".join([
-            f"{index + 1}. {medals[index]}{'@' if entry['username'] != 'unknown' else ''}{entry['username']} - имеет {entry['wins']} побед"
-            if entry['username'] else ""
+            f"{index + 1}. {medals[index]}{'@' if entry[0] != 'unknown' else ''}{entry[0]} - имеет {entry[1]} побед"
+            if entry[0] else ""
             for index, entry in enumerate(data_type[:10])
         ])
     else:
