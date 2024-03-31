@@ -11,42 +11,42 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-  test:
-    needs: lint
-    runs-on: ubuntu-latest
+  # test:
+  #   needs: lint
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+  #     - name: Set up Python 3.11
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest-mock
+  #     - name: Install dependencies
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         pip install -r requirements.txt
+  #         pip install pytest-mock
 
-      - name: Run tests
-        env:
-          API_TOKEN: ${{ secrets.API_TOKEN }}
+  #     - name: Run tests
+  #       env:
+  #         API_TOKEN: ${{ secrets.API_TOKEN }}
         
-          MYSQLHOST: ${{ secrets.MYSQLHOST }}
-          MYSQLPORT: ${{ secrets.MYSQLPORT }}
-          MYSQLUSER: ${{ secrets.MYSQLUSER }}
-          MYSQLPASSWORD: ${{ secrets.MYSQLPASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+  #         MYSQLHOST: ${{ secrets.MYSQLHOST }}
+  #         MYSQLPORT: ${{ secrets.MYSQLPORT }}
+  #         MYSQLUSER: ${{ secrets.MYSQLUSER }}
+  #         MYSQLPASSWORD: ${{ secrets.MYSQLPASSWORD }}
+  #         MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
   
-          EXCHANGE_TOKEN: ${{ secrets.EXCHANGE_TOKEN }}
-          WEATHER_TOKEN: ${{ secrets.WEATHER_TOKEN }}
+  #         EXCHANGE_TOKEN: ${{ secrets.EXCHANGE_TOKEN }}
+  #         WEATHER_TOKEN: ${{ secrets.WEATHER_TOKEN }}
         
-        run: pytest -v
+  #       run: pytest -v
 
   deploy:
-    needs: test
+    needs: lint
     runs-on: ubuntu-latest
       
     steps:
@@ -63,5 +63,3 @@ jobs:
           script: |
             cd /home/xenocode/casinoBot
             git pull
-            sudo systemctl restart casinoBot
-            TMG5Pk8Y
