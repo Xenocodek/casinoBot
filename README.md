@@ -35,7 +35,7 @@
   <section id="feedback">
         <h2>Feedback</h2>
         <p>Если у вас есть какие-либо предложения, вы столкнулись с какими-либо проблемами или просто хотите поделиться своим опытом, обращайтсь. Ваш вклад поможет нам улучшить и усовершенствовать ваш игровой опыт.</p>
-        <p>Coontacts: <a href="https://t.me/RoyalRouletteBot](https://t.me/xenocodek">@xenocode</a></p>
+        <p>Contacts: <a href="https://t.me/RoyalRouletteBot](https://t.me/xenocodek">@xenocodek</a></p>
   </section>
   
 </body>
