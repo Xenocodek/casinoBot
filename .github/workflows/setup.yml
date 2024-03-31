@@ -63,4 +63,5 @@ jobs:
           script: |
             cd /home/xenocode/casinoBot
             git pull
-            echo "done3"
+            sudo systemctl restart casinoBot
+            echo "done5"
