@@ -44,3 +44,24 @@ jobs:
           WEATHER_TOKEN: ${{ secrets.WEATHER_TOKEN }}
         
         run: pytest -v
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd /home/xenocode/casinoBot
+            git pull
+            sudo systemctl restart casinoBot
+            TMG5Pk8Y
