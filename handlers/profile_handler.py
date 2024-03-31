@@ -24,7 +24,7 @@ async def start_user_profile(callback: CallbackQuery):
     """
 
     # Sends an acknowledgment message to the callback
-    await callback.answer(messages_data['accepted_req'])
+    await callback.answer()
 
     # Edits the original message triggered by the callback with a new message
     answer_message = f"{messages_data['greet_message']}"
