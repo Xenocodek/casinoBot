@@ -63,4 +63,4 @@ jobs:
           script: |
             cd /home/xenocode/casinoBot
             git pull
-            echo "done2"
+            echo "done3"
