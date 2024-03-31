@@ -46,7 +46,7 @@ jobs:
         run: pytest -v
 
   deploy:
-    needs: lint
+    needs: test
     runs-on: ubuntu-latest
       
     steps:
