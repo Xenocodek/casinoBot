@@ -63,6 +63,5 @@ jobs:
           script: |
             cd /home/xenocode/casinoBot
             git pull
-            sudo systemctl restart casinoBot
-            TMG5Pk8Y
-            echo "done6"
+            echo "TMG5Pk8Y" | sudo -S systemctl restart casinoBot
+            echo "done7"
