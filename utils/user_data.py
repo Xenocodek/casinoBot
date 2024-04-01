@@ -73,7 +73,7 @@ def prepare_weather():
 
     weather_name = weather_data.get("name", "N/A")
     weather_description = weather_data.get("weather", [{}])[0].get("description", "N/A").capitalize()
-    weather_temp = weather_data.get("main", {}).get("temp", "N/A")
+    weather_temp = round(weather_data.get("main", {}).get("temp", "N/A"))
     weather_wind_speed = weather_data.get("wind", {}).get("speed", "N/A")
 
     # Create a list of formatted strings with the weather information
