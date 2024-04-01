@@ -1,5 +1,6 @@
 import requests
 import logging
+import time
 from datetime import datetime, timedelta
 
 from settings.config import ExchangeManager
@@ -18,8 +19,8 @@ class CurrencyConverter:
         """
         self.api_key = exchange_token
         self.symbols = symbols
-        self.exchange_data_cache = None
-        self.last_update = None
+        self.exchange_data_cache = {}
+        self.cache_expiry = 600
 
     def fetch_exchange_rate(self, base_currency):
         """
@@ -49,25 +50,22 @@ class CurrencyConverter:
         """
         Get the exchange rate for a given base currency.
         """
-        # Check if exchange data is already cached and not older than 10 minutes
-        if self.exchange_data_cache and datetime.now() - self.last_update < timedelta(minutes=10):
-            exchange_data = self.exchange_data_cache
-        else:
-            # Fetch the exchange rate and cache it
-            exchange_data = self.fetch_exchange_rate(base_currency)
-            self.exchange_data_cache = exchange_data
-            self.last_update = datetime.now()
-        
-        # Get the exchange rate for RUB
-        rub_rate = exchange_data["rates"].get("RUB")
+        if base_currency in self.exchange_data_cache:
+            cached_data, cache_time = self.exchange_data_cache[base_currency]
+            current_time = time.time()
+            if current_time - cache_time < self.cache_expiry:
+                # Return cached exchange rate if not expired
+                return round(cached_data.get('rates', {}).get(self.symbols), 2)
 
-        # If RUB rate is found, round it and return
-        if rub_rate is not None:
-            return round(rub_rate, 2)
-        else:
-            # Log if RUB rate is not found and return None
-            logging.info("RUB rate not found in response.")
-            return None
+        # Fetch exchange rate if not cached or expired
+        exchange_data = self.fetch_exchange_rate(base_currency)
+
+        # Cache the fetched data along with current time
+        self.exchange_data_cache[base_currency] = (exchange_data, time.time())
+        
+        # Return the exchange rate
+        return round(exchange_data.get('rates', {}).get(self.symbols), 2)
+
 
     def get_multi_exchange(self, base_currency_usd, base_currency_eur):
         """
