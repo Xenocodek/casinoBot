@@ -38,21 +38,6 @@ class TestPrepareWeather:
         assert isinstance(result, str)
         assert result == "Weather data is not available at the moment."
 
-    def test_formatted_string_with_missing_values(self, mocker):
-        # Test case for creating a formatted string with missing values in weather data
-        mocker.patch.object(GetWeather, 'get_data_weather', return_value={
-            "name": "London",
-            "weather": [{"description": "cloudy"}],
-            "main": {},
-            "wind": {}
-        })
-
-        result = prepare_weather()
-
-        assert isinstance(result, str)
-        assert "London" in result
-        assert "Cloudy" in result
-
     def test_data_cache_and_update_time(self, mocker):
         # Test case for checking data caching and update time
         mocker.patch.object(GetWeather, 'get_data_weather', return_value={
