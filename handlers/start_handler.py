@@ -29,7 +29,6 @@ async def cmd_start(message: Message):
     user_id = user.id
     username = user.username.lower() if user.username else "unknown"
     first_name = user.first_name
-    last_name = user.last_name
 
     # Compose the response message
     answer_message = (
@@ -41,8 +40,7 @@ async def cmd_start(message: Message):
     await message.answer(answer_message, reply_markup=start_keyboard)
 
     # Add the new user to the database (assuming 'db' represents the database handler)
-    await db.new_user(user_id, username, first_name, last_name)
-
+    await db.new_user(user_id, username, first_name)
 
 
 

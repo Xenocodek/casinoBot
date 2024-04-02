@@ -51,7 +51,7 @@ async def user_profile(callback: CallbackQuery):
     """
 
     # Sends an acknowledgment message to the callback
-    await callback.answer(messages_data['accepted_req'])
+    await callback.answer()
 
     # Extracts user information from the callback
     user_id = callback.from_user.id

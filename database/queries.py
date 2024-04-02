@@ -3,7 +3,6 @@ create_table_users = """CREATE TABLE IF NOT EXISTS users (
                     user_id VARCHAR(64) NOT NULL UNIQUE,
                     username VARCHAR(64),
                     user_first_name VARCHAR(64),
-                    user_last_name VARCHAR(64),
                     registration_date TIMESTAMP,
                     is_admin BOOLEAN DEFAULT FALSE,
                     default_language VARCHAR(2) DEFAULT 'RU'
@@ -24,7 +23,7 @@ create_table_transactions = """CREATE TABLE IF NOT EXISTS transactions (
                         id INT PRIMARY KEY AUTO_INCREMENT,
                         balance_id INT,
                         transaction_type VARCHAR(64),
-                        combination VARCHAR(64),
+                        combination VARCHAR(64) DEFAULT '',
                         amount REAL,
                         last_updated TIMESTAMP,
                         FOREIGN KEY (balance_id) REFERENCES balances(balance_id)
@@ -34,8 +33,8 @@ create_table_transactions = """CREATE TABLE IF NOT EXISTS transactions (
 select_user = "SELECT * FROM users WHERE user_id = %s"
 
 insert_new_user = """
-                INSERT INTO users (user_id, username, user_first_name, user_last_name, registration_date) 
-                VALUES (%s, %s, %s, %s, %s);
+                INSERT INTO users (user_id, username, user_first_name, registration_date) 
+                VALUES (%s, %s, %s, %s);
                 """
 
 select_potential_id = "SELECT id FROM balances WHERE balance_id = %s"
@@ -78,7 +77,7 @@ update_user_balance = """
                     WHERE user_id = %s;
                     """
 
-insert_new_transactions = """
+insert_transactions = """
                         INSERT INTO transactions (balance_id, transaction_type, combination, amount, last_updated)
                         SELECT balances.balance_id, %s, %s, %s, %s
                         FROM balances

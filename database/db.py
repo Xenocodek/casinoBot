@@ -84,7 +84,7 @@ class DatabaseManager:
             self.close_connection()
 
     
-    async def new_user(self, user_id, username, user_first_name, user_last_name):
+    async def new_user(self, user_id, username, user_first_name):
         """
         Creates a new user in the database.
         """
@@ -105,7 +105,7 @@ class DatabaseManager:
                     currency = "ALM"
                     
                     # Insert the new user into the 'users' table
-                    cursor.execute(insert_new_user, (user_id, username, user_first_name, user_last_name, created))
+                    cursor.execute(insert_new_user, (user_id, username, user_first_name, created))
 
                     # Generate a unique balance_id and insert user's initial balance in the 'balances' table
                     balance_id = None
@@ -226,7 +226,7 @@ class DatabaseManager:
                 time_updated = datetime.now()
                 
                 # Insert a new record into the 'transactions' table
-                cursor.execute(insert_new_transactions, (transaction_type, combination, amount, time_updated, user_id))
+                cursor.execute(insert_transactions, (transaction_type, combination, amount, time_updated, user_id))
 
                 # Commit the changes to the database
                 self.connection.commit()
